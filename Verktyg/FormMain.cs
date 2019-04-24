@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Verktyg
 {
@@ -18,7 +19,7 @@ namespace Verktyg
         private delegate void SafeCallDelegateDeleteLog(int line);
         public delegate void InvokeLogWithoutColor(string text, bool medEnterteck);
         public delegate void InvokeLogWithColor(string text, System.Drawing.Color color, bool medEnterteck);
-
+        
         private const string ConstContinueing = "Continueing...\r\n";
         List<string> commandList = new List<string>();
         public FormMain()
@@ -117,7 +118,7 @@ namespace Verktyg
 
         private void Log(string text)
         {
-            RecordColorLog(text, System.Drawing.Color.Black, true);
+            RecordWhitelog(text, true);
         }
         private void LogContinue()
         {
@@ -180,6 +181,14 @@ namespace Verktyg
         private void RecordGreenlog(string text)
         {
             RecordColorLog(text, System.Drawing.Color.Green, false);
+        }
+        private void RecordWhitelog(string text)
+        {
+            RecordColorLog(text, System.Drawing.Color.White, false);
+        }
+        private void RecordWhitelog(string text, bool medEntertecken)
+        {
+            RecordColorLog(text, System.Drawing.Color.White, medEntertecken);
         }
         private void RecordGreenlog(string text, bool medEntertecken)
         {
@@ -277,9 +286,17 @@ namespace Verktyg
                 if (!CheckLibreOfficeParamter(librparam)) { return; }
 
                 commandList.Clear();
-                Log("Converting is started.");
+                Log("Begin converting.");
+                Log("Time\t\tFileName");
                 CreateBatchSub(librparam);
 
+
+                FileInfo finfo = new FileInfo(this.txtBatchFilePath.Text.Trim());
+
+                if (!System.IO.Directory.Exists(finfo.DirectoryName))
+                {
+                    System.IO.Directory.CreateDirectory(finfo.DirectoryName);
+                }
                 using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(this.txtBatchFilePath.Text.Trim(), false))
                 {
@@ -305,25 +322,49 @@ namespace Verktyg
             if (!originalFold.Exists) { return; }
             if (!destinationFold.Exists) { return; }
 
-            foreach (FileInfo file in originalFold.GetFiles("*." + librparam.OriginalExtesnsion))
+
+            var files = originalFold.GetFiles().Where(s => {
+                bool rtn = false;
+                var extensionlist = librparam.OriginalExtesnsion.Split(';');
+                foreach (string item in extensionlist)
+                {
+                    rtn = rtn || s.Name.EndsWith("." + item);
+                }
+
+                return rtn;
+                //s.Name.EndsWith(".exe") || s.Name.EndsWith(".doc") || s.Name.EndsWith(".docx")
+            }
+            );
+
+            foreach (FileInfo file in files)
             {
                 try
                 {
 
                     string temp = GetCommand(librparam, file.FullName);
                     commandList.Add(temp);
-                    Log("start file[" + file.FullName + "]");
+                    DateTime dtStart = System.DateTime.Now;
+                    Log("Convert file [" + file.FullName + "]");
                     LogContinue();
+                    bool isNeedConvert = true;
+                    if(!librparam.Isoverwrite) {
+                        if(System.IO.File.Exists(librparam.OutputDirectory + "\\" + Path.GetFileNameWithoutExtension(file.FullName) + "." + librparam.OutputFileExtension))
+                        {
+                            isNeedConvert = false;
+                        }
+                    }
+                    if (isNeedConvert) { 
+                        Process pr = new Process();//声明一个进程类对象
+                        pr.StartInfo.FileName = "\"" + librparam.Path + "\"";
+                        pr.StartInfo.Arguments = " " + librparam.Command + " " + librparam.OutputFileExtension + " " +  "\"" + file.FullName + "\" " + " --outdir \"" + librparam.OutputDirectory + "\"";
+                        pr.Start();
+                        pr.WaitForExit();
+                    }
                     
-                    Process pr = new Process();//声明一个进程类对象
-                    pr.StartInfo.FileName = "\"" + librparam.Path + "\"";
-                    pr.StartInfo.Arguments = " " + librparam.Command + " " + librparam.OutputFileExtension + " " +  "\"" + file.FullName + "\" " + " --outdir \"" + librparam.OutputDirectory + "\"";
-                     
+                    DateTime dtEnd = System.DateTime.Now;
                     
-                    pr.Start();
-                    pr.WaitForExit();
                     DeleteLog(3);
-                    Log(file.FullName);
+                    Log((dtEnd - dtStart).TotalSeconds.ToString("F0") + "s" + (isNeedConvert? "": "(N)") + "\t\t" + file.FullName);
 
 
                 }
@@ -367,7 +408,7 @@ namespace Verktyg
             libreparam.OutputDirectory = this.txtOutputDir.Text.Trim();
             libreparam.OriginalExtesnsion = this.txtOriginalExtension.Text.Trim();
             libreparam.OutputFileExtension = this.txtOutputFileExtension.Text.Trim();
-
+            libreparam.Isoverwrite = this.ckboverwrite.Checked;
             return libreparam;
         }
 
@@ -399,37 +440,66 @@ namespace Verktyg
                     return rtn;
                     // break;
             }
-            switch (libreparam.OriginalExtesnsion)
-            {
-                case "docx":
-                    break;
-                case "doc":
-                    break;
-                case "docm":
-                    break;
-                case "dot":
-                    break;
-                case "dotm":
-                    break;
-                case "dotx":
-                    break;
-                case "xlsx":
-                    break;
-                case "xls":
-                    break;
-                case "xlsb":
-                    break;
-                case "xlsm":
-                    break;
-                case "xltx":
-                    break;
-                case "rtf":
-                    break;
-
-                default:
-                    Log("OriginalExtesnsion[" + libreparam.OriginalExtesnsion + "] is not supported");
-                    return rtn;
-                    // break;
+            foreach(var extension in libreparam.OriginalExtesnsion.Split(';')) { 
+                switch (extension)
+                {
+                    #region word
+                    case "docx":
+                        break;
+                    case "doc":
+                        break;
+                    case "docm":
+                        break;
+                    case "dot":
+                        break;
+                    case "dotm":
+                        break;
+                    case "dotx":
+                        break;
+                    #endregion word
+                    #region Excel
+                    case "xlsx":
+                        break;
+                    case "xls":
+                        break;
+                    case "xlsb":
+                        break;
+                    case "xlsm":
+                        break;
+                    case "xltx":
+                        break;
+                    #endregion Excel
+                    #region RichText
+                    case "rtf":
+                        break;
+                    #endregion RichText
+                    #region  PowerPoint
+                    case "potm":
+                        break;
+                    case "potx":
+                        break;
+                    case "pps":
+                        break;
+                    case "ppsm":
+                        break;
+                    case "ppsx":
+                        break;
+                    case "ppt":
+                        break;
+                    case "pptm":
+                        break;
+                    case "pptx":
+                        break;
+                    #endregion PowerPoint
+                    #region  PDF
+                    case "pdf":
+                        break;
+                    #endregion PDF
+                    default:
+                        Log("OriginalExtesnsion[" + extension + "] is not supported");
+                        return rtn;
+                        // break;
+                }
             }
             return true;
             
@@ -449,8 +519,53 @@ namespace Verktyg
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            DeleteLog(2);
+            //DeleteLog(2);
+            //var files = System.IO.Directory.GetFiles("c:\\test").Where(s => s.EndsWith(".exe") || s.EndsWith(".txt") || s.EndsWith(".doc"));
 
+
+            //foreach (string f in files)
+            //{
+            //    Log(f);
+            //}
+            //string extensions = "doc;docx;xls;xlsx;txt;exe";
+            //DirectoryInfo originalFold = new DirectoryInfo("c:\\test");
+            //var files2 = originalFold.GetFiles().Where(s => {
+            //    bool rtn = false;
+            //    var extensionlist = extensions.Split(';');
+            //    foreach(string item in extensionlist)
+            //    {
+            //        rtn = rtn || s.Name.EndsWith("." + item);
+            //    }
+
+            //    return rtn;
+            //    //s.Name.EndsWith(".exe") || s.Name.EndsWith(".doc") || s.Name.EndsWith(".docx")
+            //    }
+            //);
+            //foreach (FileInfo f in files2)
+            //{
+            //    Log(f.FullName);
+            //}
+            string ckbname = "button2";
+            Type type = this.GetType();
+            BindingFlags flag = BindingFlags.NonPublic | BindingFlags.Instance;
+            FieldInfo info = type.GetField(ckbname, flag);
+            if (info != null) { 
+                ((Button)(info.GetValue(this))).Text = "kl";
+            }
+            //foreach(var inf in type.GetFields())
+            //{
+            //    Log(inf.Name);
+            //}
+        }
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            FormSetting f = new FormSetting();
+            f.InitialExtensions(this.txtOriginalExtension.Text);
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                this.txtOriginalExtension.Text = f.GetExtensions();
+            }
         }
     }
 
@@ -464,6 +579,7 @@ namespace Verktyg
         public string OutputDirectory { get; set; }
         public string OriginalExtesnsion { get; set; }
         public bool IsincludSubfolder { get; set; }
+        public bool Isoverwrite { get; set; }
 
         public  object Clone()
         {

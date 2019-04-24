@@ -31,6 +31,8 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.lbDestination = new System.Windows.Forms.Label();
             this.lbOriginal = new System.Windows.Forms.Label();
             this.btnSetOriginal = new System.Windows.Forms.Button();
@@ -38,6 +40,7 @@
             this.btnDeleteAllFiles = new System.Windows.Forms.Button();
             this.btnCopyFolder = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button3 = new System.Windows.Forms.Button();
             this.txtBatchFilePath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.btnCreateBatchFile = new System.Windows.Forms.Button();
@@ -60,8 +63,7 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFold = new System.Windows.Forms.FolderBrowserDialog();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.ckboverwrite = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -86,8 +88,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(785, 737);
-            this.splitContainer1.SplitterDistance = 246;
+            this.splitContainer1.Size = new System.Drawing.Size(852, 737);
+            this.splitContainer1.SplitterDistance = 277;
             this.splitContainer1.TabIndex = 0;
             // 
             // tabControl1
@@ -98,7 +100,7 @@
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(785, 246);
+            this.tabControl1.Size = new System.Drawing.Size(852, 277);
             this.tabControl1.TabIndex = 7;
             // 
             // tabPage1
@@ -114,10 +116,30 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(777, 220);
+            this.tabPage1.Size = new System.Drawing.Size(844, 251);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Mapp";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(16, 175);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 16;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.Button2_Click);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(16, 146);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // lbDestination
             // 
@@ -179,6 +201,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.ckboverwrite);
+            this.tabPage2.Controls.Add(this.button3);
             this.tabPage2.Controls.Add(this.txtBatchFilePath);
             this.tabPage2.Controls.Add(this.label7);
             this.tabPage2.Controls.Add(this.btnCreateBatchFile);
@@ -201,10 +225,20 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(777, 220);
+            this.tabPage2.Size = new System.Drawing.Size(844, 251);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Konvertera";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(694, 83);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(121, 23);
+            this.button3.TabIndex = 19;
+            this.button3.Text = "Set Extensions";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.Button3_Click);
             // 
             // txtBatchFilePath
             // 
@@ -225,9 +259,9 @@
             // 
             // btnCreateBatchFile
             // 
-            this.btnCreateBatchFile.Location = new System.Drawing.Point(673, 170);
+            this.btnCreateBatchFile.Location = new System.Drawing.Point(694, 170);
             this.btnCreateBatchFile.Name = "btnCreateBatchFile";
-            this.btnCreateBatchFile.Size = new System.Drawing.Size(96, 37);
+            this.btnCreateBatchFile.Size = new System.Drawing.Size(121, 44);
             this.btnCreateBatchFile.TabIndex = 16;
             this.btnCreateBatchFile.Text = "Create Batch File";
             this.btnCreateBatchFile.UseVisualStyleBackColor = true;
@@ -245,9 +279,9 @@
             // 
             // btnSetOutput
             // 
-            this.btnSetOutput.Location = new System.Drawing.Point(674, 141);
+            this.btnSetOutput.Location = new System.Drawing.Point(694, 141);
             this.btnSetOutput.Name = "btnSetOutput";
-            this.btnSetOutput.Size = new System.Drawing.Size(100, 23);
+            this.btnSetOutput.Size = new System.Drawing.Size(121, 23);
             this.btnSetOutput.TabIndex = 14;
             this.btnSetOutput.Text = "Set Output";
             this.btnSetOutput.UseVisualStyleBackColor = true;
@@ -272,9 +306,9 @@
             // 
             // SetOriginalDir
             // 
-            this.SetOriginalDir.Location = new System.Drawing.Point(673, 112);
+            this.SetOriginalDir.Location = new System.Drawing.Point(694, 112);
             this.SetOriginalDir.Name = "SetOriginalDir";
-            this.SetOriginalDir.Size = new System.Drawing.Size(100, 23);
+            this.SetOriginalDir.Size = new System.Drawing.Size(121, 23);
             this.SetOriginalDir.TabIndex = 11;
             this.SetOriginalDir.Text = "Set Origrinal";
             this.SetOriginalDir.UseVisualStyleBackColor = true;
@@ -352,7 +386,7 @@
             // 
             this.btnSetLibreOffice.Location = new System.Drawing.Point(694, 3);
             this.btnSetLibreOffice.Name = "btnSetLibreOffice";
-            this.btnSetLibreOffice.Size = new System.Drawing.Size(75, 23);
+            this.btnSetLibreOffice.Size = new System.Drawing.Size(121, 23);
             this.btnSetLibreOffice.TabIndex = 2;
             this.btnSetLibreOffice.Text = "SetLibreOffice";
             this.btnSetLibreOffice.UseVisualStyleBackColor = true;
@@ -377,10 +411,12 @@
             // 
             // richTextBox1
             // 
+            this.richTextBox1.BackColor = System.Drawing.SystemColors.WindowText;
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.ForeColor = System.Drawing.SystemColors.Window;
             this.richTextBox1.Location = new System.Drawing.Point(0, 0);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(785, 487);
+            this.richTextBox1.Size = new System.Drawing.Size(852, 456);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
@@ -388,31 +424,21 @@
             // 
             this.openFile.FileName = "soffice";
             // 
-            // button1
+            // ckboverwrite
             // 
-            this.button1.Location = new System.Drawing.Point(16, 146);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 15;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(16, 175);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 16;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.Button2_Click);
+            this.ckboverwrite.AutoSize = true;
+            this.ckboverwrite.Location = new System.Drawing.Point(143, 170);
+            this.ckboverwrite.Name = "ckboverwrite";
+            this.ckboverwrite.Size = new System.Drawing.Size(78, 16);
+            this.ckboverwrite.TabIndex = 20;
+            this.ckboverwrite.Text = "overwrite";
+            this.ckboverwrite.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(785, 737);
+            this.ClientSize = new System.Drawing.Size(852, 737);
             this.Controls.Add(this.splitContainer1);
             this.Name = "FormMain";
             this.Text = "Konvertering Verktyg";
@@ -465,6 +491,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.CheckBox ckboverwrite;
     }
 }
 
