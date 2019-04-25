@@ -40,6 +40,7 @@
             this.btnDeleteAllFiles = new System.Windows.Forms.Button();
             this.btnCopyFolder = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.ckboverwrite = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.txtBatchFilePath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -60,10 +61,17 @@
             this.btnSetLibreOffice = new System.Windows.Forms.Button();
             this.txtLibrePath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.btnSetOutput2 = new System.Windows.Forms.Button();
+            this.txtOutputDir2 = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.SetOriginalDir2 = new System.Windows.Forms.Button();
+            this.txtOriginalDir2 = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFold = new System.Windows.Forms.FolderBrowserDialog();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
-            this.ckboverwrite = new System.Windows.Forms.CheckBox();
+            this.btnCheck = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -71,6 +79,7 @@
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -96,6 +105,7 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -118,7 +128,7 @@
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(844, 251);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Mapp";
+            this.tabPage1.Text = "Folder";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // button2
@@ -227,8 +237,18 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(844, 251);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Konvertera";
+            this.tabPage2.Text = "Convert";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // ckboverwrite
+            // 
+            this.ckboverwrite.AutoSize = true;
+            this.ckboverwrite.Location = new System.Drawing.Point(143, 170);
+            this.ckboverwrite.Name = "ckboverwrite";
+            this.ckboverwrite.Size = new System.Drawing.Size(78, 16);
+            this.ckboverwrite.TabIndex = 20;
+            this.ckboverwrite.Text = "overwrite";
+            this.ckboverwrite.UseVisualStyleBackColor = true;
             // 
             // button3
             // 
@@ -244,7 +264,7 @@
             // 
             this.txtBatchFilePath.Location = new System.Drawing.Point(141, 193);
             this.txtBatchFilePath.Name = "txtBatchFilePath";
-            this.txtBatchFilePath.Size = new System.Drawing.Size(516, 21);
+            this.txtBatchFilePath.Size = new System.Drawing.Size(547, 21);
             this.txtBatchFilePath.TabIndex = 18;
             this.txtBatchFilePath.Text = "c:\\test\\batch.txt";
             // 
@@ -291,7 +311,7 @@
             // 
             this.txtOutputDir.Location = new System.Drawing.Point(140, 141);
             this.txtOutputDir.Name = "txtOutputDir";
-            this.txtOutputDir.Size = new System.Drawing.Size(516, 21);
+            this.txtOutputDir.Size = new System.Drawing.Size(547, 21);
             this.txtOutputDir.TabIndex = 13;
             this.txtOutputDir.Text = "C:\\test2 ui\\test AB";
             // 
@@ -318,7 +338,7 @@
             // 
             this.txtOriginalDir.Location = new System.Drawing.Point(141, 112);
             this.txtOriginalDir.Name = "txtOriginalDir";
-            this.txtOriginalDir.Size = new System.Drawing.Size(516, 21);
+            this.txtOriginalDir.Size = new System.Drawing.Size(547, 21);
             this.txtOriginalDir.TabIndex = 10;
             this.txtOriginalDir.Text = "c:\\test AB";
             // 
@@ -409,6 +429,76 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "LibreOffice Path";
             // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.btnCheck);
+            this.tabPage3.Controls.Add(this.btnSetOutput2);
+            this.tabPage3.Controls.Add(this.txtOutputDir2);
+            this.tabPage3.Controls.Add(this.label8);
+            this.tabPage3.Controls.Add(this.SetOriginalDir2);
+            this.tabPage3.Controls.Add(this.txtOriginalDir2);
+            this.tabPage3.Controls.Add(this.label9);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(844, 251);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Check";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // btnSetOutput2
+            // 
+            this.btnSetOutput2.Location = new System.Drawing.Point(691, 41);
+            this.btnSetOutput2.Name = "btnSetOutput2";
+            this.btnSetOutput2.Size = new System.Drawing.Size(121, 23);
+            this.btnSetOutput2.TabIndex = 20;
+            this.btnSetOutput2.Text = "Set Output";
+            this.btnSetOutput2.UseVisualStyleBackColor = true;
+            this.btnSetOutput2.Click += new System.EventHandler(this.BtnSetOutput2_Click);
+            // 
+            // txtOutputDir2
+            // 
+            this.txtOutputDir2.Location = new System.Drawing.Point(137, 41);
+            this.txtOutputDir2.Name = "txtOutputDir2";
+            this.txtOutputDir2.Size = new System.Drawing.Size(516, 21);
+            this.txtOutputDir2.TabIndex = 19;
+            this.txtOutputDir2.Text = "C:\\test2 ui\\test AB";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 44);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(95, 12);
+            this.label8.TabIndex = 18;
+            this.label8.Text = "OutputDirectory";
+            // 
+            // SetOriginalDir2
+            // 
+            this.SetOriginalDir2.Location = new System.Drawing.Point(691, 12);
+            this.SetOriginalDir2.Name = "SetOriginalDir2";
+            this.SetOriginalDir2.Size = new System.Drawing.Size(121, 23);
+            this.SetOriginalDir2.TabIndex = 17;
+            this.SetOriginalDir2.Text = "Set Origrinal";
+            this.SetOriginalDir2.UseVisualStyleBackColor = true;
+            this.SetOriginalDir2.Click += new System.EventHandler(this.SetOriginalDir2_Click);
+            // 
+            // txtOriginalDir2
+            // 
+            this.txtOriginalDir2.Location = new System.Drawing.Point(138, 12);
+            this.txtOriginalDir2.Name = "txtOriginalDir2";
+            this.txtOriginalDir2.Size = new System.Drawing.Size(516, 21);
+            this.txtOriginalDir2.TabIndex = 16;
+            this.txtOriginalDir2.Text = "c:\\test AB";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(6, 15);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(107, 12);
+            this.label9.TabIndex = 15;
+            this.label9.Text = "OriginalDirectory";
+            // 
             // richTextBox1
             // 
             this.richTextBox1.BackColor = System.Drawing.SystemColors.WindowText;
@@ -424,15 +514,15 @@
             // 
             this.openFile.FileName = "soffice";
             // 
-            // ckboverwrite
+            // btnCheck
             // 
-            this.ckboverwrite.AutoSize = true;
-            this.ckboverwrite.Location = new System.Drawing.Point(143, 170);
-            this.ckboverwrite.Name = "ckboverwrite";
-            this.ckboverwrite.Size = new System.Drawing.Size(78, 16);
-            this.ckboverwrite.TabIndex = 20;
-            this.ckboverwrite.Text = "overwrite";
-            this.ckboverwrite.UseVisualStyleBackColor = true;
+            this.btnCheck.Location = new System.Drawing.Point(691, 71);
+            this.btnCheck.Name = "btnCheck";
+            this.btnCheck.Size = new System.Drawing.Size(121, 79);
+            this.btnCheck.TabIndex = 21;
+            this.btnCheck.Text = "Check File";
+            this.btnCheck.UseVisualStyleBackColor = true;
+            this.btnCheck.Click += new System.EventHandler(this.BtnCheck_Click);
             // 
             // FormMain
             // 
@@ -451,6 +541,8 @@
             this.tabPage1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -493,6 +585,14 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.CheckBox ckboverwrite;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.Button btnSetOutput2;
+        private System.Windows.Forms.TextBox txtOutputDir2;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button SetOriginalDir2;
+        private System.Windows.Forms.TextBox txtOriginalDir2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Button btnCheck;
     }
 }
 
