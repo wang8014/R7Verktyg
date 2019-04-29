@@ -16,18 +16,78 @@ namespace Verktyg
 {
     public partial class FormMain : Form
     {
+        #region  variable
         private delegate void SafeCallDelegateLog(string text);
         private delegate void SafeCallDelegateDeleteLog(int line);
         public delegate void InvokeLogWithoutColor(string text, bool medEnterteck);
         public delegate void InvokeLogWithColor(string text, System.Drawing.Color color, bool medEnterteck);
+        public delegate void SetbuttonStatus(bool flag);
         
         private const string ConstContinueing = "Continueing...\r\n";
+
+        private Task task;
+        private CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        private CancellationToken token;
         List<string> commandList = new List<string>();
+        #endregion 
         public FormMain()
         {
             InitializeComponent();
+            token = tokenSource.Token;
         }
 
+        #region Test
+
+        private async void Button2_Click(object sender, EventArgs e)
+        {
+            tokenSource = new CancellationTokenSource();
+            token = tokenSource.Token;
+
+            task = Task.Run(() => doSomething(200),token);
+            try { 
+                await task;
+            }
+            catch (Exception ex)
+            {
+                Log("task isCanceled:" + task.IsCanceled.ToString());
+                Log("task isCompleted" + task.IsCompleted.ToString());
+            }
+
+
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            //RecordBluelog("converting is started", true);
+            tokenSource.Cancel();
+            while (!task.IsCompleted) { 
+                Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " task isCanceled:" + task.IsCanceled.ToString());
+                Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " task isCompleted:" + task.IsCompleted.ToString());
+            }
+
+
+        }
+        private void doSomething(int number)
+        {
+            token.ThrowIfCancellationRequested();
+            for (int i = 1; i < number; i++)
+            {
+                Thread.Sleep(5000);
+                if (token.IsCancellationRequested)
+                {
+                    // Clean up here, then...
+                    token.ThrowIfCancellationRequested();
+                }
+                Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " loop " + i.ToString());
+            }
+
+        }
+
+        #endregion test
+
+        #region Folder Operation
+        #region Button Click 
         private void BtnSetOriginal_Click(object sender, EventArgs e)
         {
             SetRiginalFold();
@@ -37,8 +97,24 @@ namespace Verktyg
         {
             SetDestinationFold();
         }
-
-
+        private async void BtnDeleteAllFiles_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = OpenFoldDialog();
+            if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
+            {
+                await DeleteAllfiles(openFold.SelectedPath);
+            }
+        }
+        private async void BtnCopyFolder_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                await CopyFolder();
+            }
+            catch (Exception ex){
+            }
+        }
+        #endregion Button Click
         private void SetRiginalFold()
         {
             DialogResult dr = OpenFoldDialog();
@@ -78,27 +154,20 @@ namespace Verktyg
             this.lbDestination.Text = dirPath;
         }
 
-
-
-        private void CopyFolder()
+        #region Threading function
+        private Task CopyFolder()
         {
-            DirectoryInfo originalFold = new DirectoryInfo(this.lbOriginal.Text);
-            DirectoryInfo destinationFold = new DirectoryInfo(this.lbDestination.Text);
+            task = Task.Run(()=> { 
+                DirectoryInfo originalFold = new DirectoryInfo(this.lbOriginal.Text);
+                DirectoryInfo destinationFold = new DirectoryInfo(this.lbDestination.Text);
 
-            if (!originalFold.Exists) { return; }
-            if (!destinationFold.Exists) { return; }
-            Task.Run(() => CreateFolder(originalFold.FullName, destinationFold.FullName));
-
+                if (!originalFold.Exists) { return; }
+                if (!destinationFold.Exists) { return; }
+                CreateFolder(originalFold.FullName, destinationFold.FullName);
+            });
+            return task;
         }
-
-        private void BtnDeleteAllFiles_Click(object sender, EventArgs e)
-        {
-            DialogResult dr = OpenFoldDialog();
-            if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
-            {
-                DeleteAllfiles(openFold.SelectedPath);
-            }
-        }
+        
         private void CreateFolder(string originalFoldName, string destinationFoldName)
         {
             DirectoryInfo originalFold = new DirectoryInfo(originalFoldName);
@@ -115,144 +184,57 @@ namespace Verktyg
                 CreateFolder(dir.FullName, destinationFoldName + "\\" + originalFold.Name);
             }
         }
-
-
-        private void Log(string text)
+        private Task DeleteAllfiles(string Dir)
         {
-            RecordWhitelog(text, true);
-        }
-        private void LogContinue()
-        {
-            RecordWhitelog(System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"),false);
-            RecordRedlog(ConstContinueing, false);
-        }
-
-        private void DeleteLog(int line)
-        {
-            if (this.richTextBox1.InvokeRequired)
+            task = Task.Run(() =>
             {
-                var d = new SafeCallDelegateDeleteLog(DeleteLog);
-                Invoke(d, new object[] { line });
-            }
-            else
-            {
-                if (line > 0)
+                DirectoryInfo originalFold = new DirectoryInfo(Dir);
+                if (!originalFold.Exists) { return; }
+                foreach (FileInfo file in originalFold.GetFiles())
                 {
-                    int enter = this.richTextBox1.Text.LastIndexOf("\n");
-                    while ((enter >= 0)&&(line>0)) {
-                        this.richTextBox1.Text = this.richTextBox1.Text.Remove(enter);
-                        line -= 1;
-                        enter = this.richTextBox1.Text.LastIndexOf("\n");
+                    try
+                    {
+                        //System.IO.File.Delete(file.FullName);
+                        file.Delete();
+                        Log(file.FullName + " is deleted.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(" Not delete the file[" + file.FullName + "]");
                     }
                 }
-                Log("");
-            }
-        }
-        //private void Recordlog(string text, bool medEntertecken)
-        //{
-            
-        //}
-        private void Recordlogutanbreak(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Black, medEntertecken);
-        }
-        private void RecordError(string text)
-        {
-            RecordRedlog(text);
-        }
-        private void RecordError(string text, bool medEntertecken)
-        {
-            RecordRedlog(text, medEntertecken);
-        }
-        private void RecordRedlog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.Red, false);
-        }
-        private void RecordRedlog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Red, medEntertecken);
-        }
-        private void RecordBluelog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.Blue, false);
-        }
-        private void RecordBluelog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Blue, medEntertecken);
-        }
-        private void RecordGreenlog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.Green, false);
-        }
-        private void RecordWhitelog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.White, false);
-        }
-        private void RecordWhitelog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.White, medEntertecken);
-        }
-        private void RecordGreenlog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Green, medEntertecken);
-        }
-        private void RecordColorLog(string text, System.Drawing.Color color, bool medEntertecken)
-        {
-            if (this.richTextBox1.InvokeRequired)
-            {
-                this.BeginInvoke(new InvokeLogWithColor(RecordColorLog), new object[] { text, color, medEntertecken });
-            }
-            else
-            {
-                int start, len;
-                if (this.richTextBox1.Text == null)
+                foreach (DirectoryInfo dirinfo in originalFold.GetDirectories())
                 {
-                    this.richTextBox1.Text = "";
+                    Log("Folder[" + dirinfo.FullName + "]");
+                    Task.Run(() => DeleteAllfiles(dirinfo.FullName));
                 }
+            });
+            return task;
 
-                start = this.richTextBox1.TextLength;
-                len = text.Length;
-                this.richTextBox1.AppendText(text);
-                this.richTextBox1.Select(start, len);
-                this.richTextBox1.SelectionColor = color;
-                if (medEntertecken)
-                {
-                    this.richTextBox1.AppendText("\r\n");
-                }
-            }
         }
+        #endregion Threading function
+        #endregion Folder Operation
 
-        private void BtnCopyFolder_Click(object sender, EventArgs e)
+
+        #region LibreOffice Convert
+        #region Buttion Click
+        private void btnSetOriginalDir_Click(object sender, EventArgs e)
         {
-            CopyFolder();
+            DialogResult dr = OpenFoldDialog();
+            if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
+            {
+                this.txtOriginalDir.Text = this.openFold.SelectedPath;
+            }
         }
-
-        private void DeleteAllfiles(string Dir)
+        private void btnSetExtensions_Click(object sender, EventArgs e)
         {
-            DirectoryInfo originalFold = new DirectoryInfo(Dir);
-            if (!originalFold.Exists) { return; }
-            foreach (FileInfo file in originalFold.GetFiles())
+            FormSetting f = new FormSetting();
+            f.InitialExtensions(this.txtOriginalExtension.Text);
+            if (f.ShowDialog() == DialogResult.OK)
             {
-                try
-                {
-                    //System.IO.File.Delete(file.FullName);
-                    file.Delete();
-                    Log(file.FullName + " is deleted.");
-                }
-                catch (Exception ex)
-                {
-                    Log(" Not delete the file[" + file.FullName + "]");
-                }
+                this.txtOriginalExtension.Text = f.GetExtensions();
             }
-            foreach (DirectoryInfo dirinfo in originalFold.GetDirectories())
-            {
-                Log("Folder[" + dirinfo.FullName + "]");
-                Task.Run(() => DeleteAllfiles(dirinfo.FullName));
-            }
-
-
         }
-
         private void BtnSetLibreOffice_Click(object sender, EventArgs e)
         {
             DialogResult dr = OpenFileDialog();
@@ -261,16 +243,6 @@ namespace Verktyg
                 this.txtLibrePath.Text = this.openFile.FileName;
             }
         }
-
-        private void SetOriginalDir_Click(object sender, EventArgs e)
-        {
-            DialogResult dr = OpenFoldDialog();
-            if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
-            {
-                this.txtOriginalDir.Text = this.openFold.SelectedPath;
-            }       
-        }
-
         private void BtnSetOutput_Click(object sender, EventArgs e)
         {
             DialogResult dr = OpenFoldDialog();
@@ -279,10 +251,43 @@ namespace Verktyg
                 this.txtOutputDir.Text = this.openFold.SelectedPath;
             }
         }
+        private async void BtnCreateBatchFile_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                tokenSource = new CancellationTokenSource();
+                token = tokenSource.Token;
+                this.SetLibreOfficeButtonStatus(false);
+                await CreateBatch();
+            }
+            catch(Exception ex)
+            {
 
+            }
+            finally{
+                this.BeginInvoke(new SetbuttonStatus(SetLibreOfficeButtonStatus), new object[] { true });
+
+            }
+        }
+
+        private void BtnCancelConverting_Click(object sender, EventArgs e)
+        {
+            ((Button)sender).Enabled = false;
+            CancelTask();
+            if (task.IsCompleted) { this.SetCheckFileButtonStatus(true); }
+            //while (!task.IsCompleted)
+            //{
+            //    Thread.Sleep(500);
+            //}
+            //task.Wait();
+
+        }
+        #endregion Buttion Click
+
+        #region thread function
         private Task CreateBatch()
         {
-            var t = Task.Run(() =>
+            task = Task.Run(() =>
             {
                 LibreOfficeParameter librparam = this.GetLibreOfficeParamter();
                 if (!CheckLibreOfficeParamter(librparam)) { return; }
@@ -313,7 +318,7 @@ namespace Verktyg
                 //DeleteLog(2);
                 RecordGreenlog("Finished!",true);
             });
-            return t;
+            return task;
 
 
         }
@@ -344,12 +349,20 @@ namespace Verktyg
             {
                 try
                 {
-
+                    
                     string temp = GetCommand(librparam, file.FullName);
                     commandList.Add(temp);
                     DateTime dtStart = System.DateTime.Now;
                     Log("Convert file [" + file.FullName + "]");
                     LogContinue();
+                    if (token.IsCancellationRequested)
+                    {
+                        // Clean up here, then...
+                        DeleteLog(3);
+                        RecordRedlog("Task is canceled.");
+                        this.BeginInvoke(new SetbuttonStatus(SetLibreOfficeButtonStatus), new object[] { true });
+                        token.ThrowIfCancellationRequested();
+                    }
                     bool isNeedConvert = true;
                     if(!librparam.Isoverwrite) {
                         if(System.IO.File.Exists(librparam.OutputDirectory + "\\" + Path.GetFileNameWithoutExtension(file.FullName) + "." + librparam.OutputFileExtension))
@@ -363,6 +376,15 @@ namespace Verktyg
                         pr.StartInfo.Arguments = " " + librparam.Command + " " + librparam.OutputFileExtension + " " +  "\"" + file.FullName + "\" " + " --outdir \"" + librparam.OutputDirectory + "\"";
                         pr.Start();
                         pr.WaitForExit();
+                        
+                        DateTime dtConvertStart = System.DateTime.Now;
+                        Console.WriteLine("LibreOffice Process is finished");
+                        while (!System.IO.File.Exists(librparam.OutputDirectory + "\\" + Path.GetFileNameWithoutExtension(file.Name) + "." + librparam.OutputFileExtension)) {
+                            Console.WriteLine(librparam.OutputFileExtension + " is not created");
+                            Thread.Sleep(100);
+                        }
+                        DateTime dtConvertEnd = System.DateTime.Now;
+                        Console.WriteLine("wait for tbe pdf file time: " + (dtConvertEnd - dtConvertStart).TotalSeconds.ToString("F0") + "s");
                     }
                     
                     DateTime dtEnd = System.DateTime.Now;
@@ -371,6 +393,11 @@ namespace Verktyg
                     Log((dtEnd - dtStart).TotalSeconds.ToString("F0") + "s" + (isNeedConvert? "": "(N)") + "\t\t" + file.FullName);
 
 
+                }
+                catch(System.OperationCanceledException ex)
+                {
+                    // Cancel Task
+                    throw ex; 
                 }
                 catch (Exception ex)
                 {
@@ -390,7 +417,7 @@ namespace Verktyg
             }
 
         }
-
+        #endregion Thread function
         private string GetCommand(LibreOfficeParameter librparam, string originalFileName)
         {
             string command = "\"";
@@ -401,6 +428,7 @@ namespace Verktyg
             command += " --outdir \""  + librparam.OutputDirectory + "\"";
             return command;
         }
+
 
         private LibreOfficeParameter GetLibreOfficeParamter()
         {
@@ -509,75 +537,75 @@ namespace Verktyg
             
         }
 
-        private async void BtnCreateBatchFile_Click(object sender, EventArgs e)
+        #region Button Status controll
+        /// <summary>
+        /// Set LibreOffice converting buttons are enabled or not.
+        /// </summary>
+        /// <param name="isEnabled">true:Button are enabled; false: buttons are disenabled.</param>
+        private void SetLibreOfficeButtonStatus(bool isEnabled)
         {
-            await CreateBatch();
+            this.btnSetLibreOffice.Enabled = isEnabled;
+            this.btnSetExtensions.Enabled = isEnabled;
+            this.btnSetOriginalDir.Enabled = isEnabled;
+            this.btnSetOutput.Enabled = isEnabled;
+            this.btnCreateBatchFile.Enabled = isEnabled;
+            this.btnCancelConverting.Enabled = !isEnabled;
         }
 
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            RecordBluelog("converting is started",true);
+        #endregion
+        #endregion LibreOffice Convert
 
 
-        }
 
-        private async void Button2_Click(object sender, EventArgs e)
-        {
-            Console.WriteLine("UI button begin. " + System.DateTime.Now.ToLongTimeString());
-            Log("UI button begin. " + System.DateTime.Now.ToLongTimeString());
-            Task t = Task.Run(() => doSomething(5));
-            await t;
-            Console.WriteLine("UI button end. " + System.DateTime.Now.ToLongTimeString());
-            Log("UI button end. " + System.DateTime.Now.ToLongTimeString());
-
-        }
-        private void doSomething(int number)
-        {
-            Console.WriteLine("doSomething begin. " + System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"));
-            Log("doSomething begin. " + System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"));
-            Thread.Sleep(2000);
-            Console.WriteLine("doSomething end. " + System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"));
-            Log("doSomething end. " + System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"));
-
-        }
-        
-        private void Button3_Click(object sender, EventArgs e)
-        {
-            FormSetting f = new FormSetting();
-            f.InitialExtensions(this.txtOriginalExtension.Text);
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                this.txtOriginalExtension.Text = f.GetExtensions();
-            }
-        }
-
-        private void SetOriginalDir2_Click(object sender, EventArgs e)
+        #region CheckFile Operation
+        #region Button Click
+        private void BtnCheck_SetOriginalDir_Click(object sender, EventArgs e)
         {
             DialogResult dr = OpenFoldDialog();
             if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
             {
-                this.txtOriginalDir2.Text = this.openFold.SelectedPath;
+                this.txtCheck_OriginalDir.Text = this.openFold.SelectedPath;
             }
         }
-
-        private void BtnSetOutput2_Click(object sender, EventArgs e)
+        private void BtnCheck_SetOutput_Click(object sender, EventArgs e)
         {
             DialogResult dr = OpenFoldDialog();
             if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
             {
-                this.txtOriginalDir2.Text = this.openFold.SelectedPath;
+                this.txtCheck_OutputDir.Text = this.openFold.SelectedPath;
             }
         }
-
         private async void BtnCheck_Click(object sender, EventArgs e)
         {
-            await CheckFile();
-        }
+            try {
+                tokenSource = new CancellationTokenSource();
+                token = tokenSource.Token;
+                SetCheckFileButtonStatus(false);
+                await CheckFile();
+            }
+            catch(Exception ex)
+            {
 
+            }
+            finally
+            {
+                this.BeginInvoke(new SetbuttonStatus(SetCheckFileButtonStatus), new object[] { true });
+            }
+        }
+        private void BtnCheck_Cancel_Click(object sender, EventArgs e)
+        {
+            ((Button)sender).Enabled = false;
+            CancelTask();
+            if (task.IsCompleted) { this.SetCheckFileButtonStatus(true); }
+            
+        }
+        #endregion Button Click
+
+        #region Threading Function
         private Task CheckFile()
         {
-            Task t = Task.Run(() => CheckFileThread());
-            return t;
+            task = Task.Run(() => CheckFileThread());
+            return task;
         }
         private void CheckFileThread()
         {
@@ -603,6 +631,7 @@ namespace Verktyg
         }
         private void CheckFileThreadSub(CheckFileParameter param)
         {
+            //token.ThrowIfCancellationRequested();
             CheckDirectoryIsExists(param.OriginalDirectory,true);
             CheckDirectoryIsExists(param.OutputDirectory,true);
 
@@ -617,6 +646,14 @@ namespace Verktyg
             // Check Original First
             foreach (FileInfo file in originalfiles)
             {
+                if (token.IsCancellationRequested)
+                {
+                    // Clean up here, then...
+                    RecordRedlog("Task is canceled.");
+                    this.BeginInvoke(new SetbuttonStatus(SetCheckFileButtonStatus), new object[] { true });
+                    token.ThrowIfCancellationRequested();
+                }
+
                 CheckResult checkresult = new CheckResult();
                 checkresult.OriginalExtension = Path.GetExtension(file.Name);
                 checkresult.OriginalFileSize = file.Length;
@@ -674,6 +711,21 @@ namespace Verktyg
             }
 
         }
+        #endregion 
+        #region Button Status controll
+        /// <summary>
+        /// Set LibreOffice converting buttons are enabled or not.
+        /// </summary>
+        /// <param name="isEnabled">true:Button are enabled; false: buttons are disenabled.</param>
+        private void SetCheckFileButtonStatus(bool isEnabled)
+        {
+            this.btnCheck_SetOriginalDir.Enabled = isEnabled;
+            this.btnCheck_SetOutput.Enabled = isEnabled;
+            this.btnCheck.Enabled = isEnabled;
+            this.btnCheck_Cancel.Enabled = !isEnabled;
+        }
+
+        #endregion
         private CheckResult GetDestinationCheckResult(FileInfo file)
         {
             CheckResult checkresult = new CheckResult();
@@ -785,8 +837,8 @@ namespace Verktyg
         private CheckFileParameter GetCheckFileParameter()
         {
             CheckFileParameter param = new CheckFileParameter();
-            param.OriginalDirectory = this.txtOriginalDir2.Text.Trim();
-            param.OutputDirectory = this.txtOutputDir2.Text.Trim();
+            param.OriginalDirectory = this.txtCheck_OriginalDir.Text.Trim();
+            param.OutputDirectory = this.txtCheck_OutputDir.Text.Trim();
             return param;
 
         }
@@ -798,7 +850,132 @@ namespace Verktyg
             if (!destinationFold.Exists) { Log("Destination Path is not exists."); return false; }
             return true;
         }
+        #endregion CheckFile Operation
+
+        #region Log
+        private void Log(string text)
+        {
+            RecordWhitelog(text, true);
+        }
+        private void LogContinue()
+        {
+            RecordWhitelog(System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"), false);
+            RecordRedlog(ConstContinueing, false);
+        }
+
+        private void DeleteLog(int line)
+        {
+            if (this.richTextBox1.InvokeRequired)
+            {
+                var d = new SafeCallDelegateDeleteLog(DeleteLog);
+                BeginInvoke(d, new object[] { line });
+            }
+            else
+            {
+                if (line > 0)
+                {
+                    //this.richTextBox1.Doc
+                    int enter = this.richTextBox1.Text.LastIndexOf("\n");
+                    while ((enter >= 0) && (line > 0))
+                    {
+                        this.richTextBox1.Text = this.richTextBox1.Text.Remove(enter);
+                        line -= 1;
+                        enter = this.richTextBox1.Text.LastIndexOf("\n");
+                    }
+                }
+                Log("");
+            }
+        }
+
+        private void RecordError(string text)
+        {
+            RecordRedlog(text);
+        }
+        private void RecordError(string text, bool medEntertecken)
+        {
+            RecordRedlog(text, medEntertecken);
+        }
+        private void RecordRedlog(string text)
+        {
+            RecordColorLog(text, System.Drawing.Color.Red, false);
+        }
+        private void RecordRedlog(string text, bool medEntertecken)
+        {
+            RecordColorLog(text, System.Drawing.Color.Red, medEntertecken);
+        }
+        private void RecordBluelog(string text)
+        {
+            RecordColorLog(text, System.Drawing.Color.Blue, false);
+        }
+        private void RecordBluelog(string text, bool medEntertecken)
+        {
+            RecordColorLog(text, System.Drawing.Color.Blue, medEntertecken);
+        }
+        private void RecordGreenlog(string text)
+        {
+            RecordColorLog(text, System.Drawing.Color.Green, false);
+        }
+        private void RecordWhitelog(string text)
+        {
+            RecordColorLog(text, System.Drawing.Color.White, false);
+        }
+        private void RecordWhitelog(string text, bool medEntertecken)
+        {
+            RecordColorLog(text, System.Drawing.Color.White, medEntertecken);
+        }
+        private void RecordGreenlog(string text, bool medEntertecken)
+        {
+            RecordColorLog(text, System.Drawing.Color.Green, medEntertecken);
+        }
+        private void RecordColorLog(string text, System.Drawing.Color color, bool medEntertecken)
+        {
+            if (this.richTextBox1.InvokeRequired)
+            {
+                this.Invoke(new InvokeLogWithColor(RecordColorLog), new object[] { text, color, medEntertecken });
+            }
+            else
+            {
+                int start, len;
+                if (this.richTextBox1.Text == null)
+                {
+                    this.richTextBox1.Text = "";
+                }
+
+                start = this.richTextBox1.TextLength;
+                len = text.Length;
+                this.richTextBox1.AppendText(text);
+                this.richTextBox1.Select(start, len);
+                this.richTextBox1.SelectionColor = color;
+                if (medEntertecken)
+                {
+                    this.richTextBox1.AppendText("\r\n");
+                }
+            }
+        }
+
+
+
+        #endregion
+
+
+        #region Cancel Task
+        private void CancelTask()
+        {
+            if (tokenSource != null)
+            {
+                if (tokenSource.IsCancellationRequested == false)
+                {
+                    tokenSource.Cancel();
+                }
+            }
+        }
+        #endregion 
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+
+        }
     }
+
 
     public class CheckFileParameter : ICloneable
     {

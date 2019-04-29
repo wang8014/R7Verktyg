@@ -40,8 +40,9 @@
             this.btnDeleteAllFiles = new System.Windows.Forms.Button();
             this.btnCopyFolder = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.btnCancelConverting = new System.Windows.Forms.Button();
             this.ckboverwrite = new System.Windows.Forms.CheckBox();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnSetExtensions = new System.Windows.Forms.Button();
             this.txtBatchFilePath = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.btnCreateBatchFile = new System.Windows.Forms.Button();
@@ -49,7 +50,7 @@
             this.btnSetOutput = new System.Windows.Forms.Button();
             this.txtOutputDir = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.SetOriginalDir = new System.Windows.Forms.Button();
+            this.btnSetOriginalDir = new System.Windows.Forms.Button();
             this.txtOriginalDir = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.txtOriginalExtension = new System.Windows.Forms.TextBox();
@@ -62,16 +63,17 @@
             this.txtLibrePath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.btnSetOutput2 = new System.Windows.Forms.Button();
-            this.txtOutputDir2 = new System.Windows.Forms.TextBox();
+            this.btnCheck_Cancel = new System.Windows.Forms.Button();
+            this.btnCheck = new System.Windows.Forms.Button();
+            this.btnCheck_SetOutput = new System.Windows.Forms.Button();
+            this.txtCheck_OutputDir = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.SetOriginalDir2 = new System.Windows.Forms.Button();
-            this.txtOriginalDir2 = new System.Windows.Forms.TextBox();
+            this.btnCheck_SetOriginalDir = new System.Windows.Forms.Button();
+            this.txtCheck_OriginalDir = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFold = new System.Windows.Forms.FolderBrowserDialog();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
-            this.btnCheck = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -211,8 +213,9 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.btnCancelConverting);
             this.tabPage2.Controls.Add(this.ckboverwrite);
-            this.tabPage2.Controls.Add(this.button3);
+            this.tabPage2.Controls.Add(this.btnSetExtensions);
             this.tabPage2.Controls.Add(this.txtBatchFilePath);
             this.tabPage2.Controls.Add(this.label7);
             this.tabPage2.Controls.Add(this.btnCreateBatchFile);
@@ -220,7 +223,7 @@
             this.tabPage2.Controls.Add(this.btnSetOutput);
             this.tabPage2.Controls.Add(this.txtOutputDir);
             this.tabPage2.Controls.Add(this.label6);
-            this.tabPage2.Controls.Add(this.SetOriginalDir);
+            this.tabPage2.Controls.Add(this.btnSetOriginalDir);
             this.tabPage2.Controls.Add(this.txtOriginalDir);
             this.tabPage2.Controls.Add(this.label5);
             this.tabPage2.Controls.Add(this.txtOriginalExtension);
@@ -240,6 +243,16 @@
             this.tabPage2.Text = "Convert";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // btnCancelConverting
+            // 
+            this.btnCancelConverting.Location = new System.Drawing.Point(694, 220);
+            this.btnCancelConverting.Name = "btnCancelConverting";
+            this.btnCancelConverting.Size = new System.Drawing.Size(121, 28);
+            this.btnCancelConverting.TabIndex = 21;
+            this.btnCancelConverting.Text = "Cancel Converting";
+            this.btnCancelConverting.UseVisualStyleBackColor = true;
+            this.btnCancelConverting.Click += new System.EventHandler(this.BtnCancelConverting_Click);
+            // 
             // ckboverwrite
             // 
             this.ckboverwrite.AutoSize = true;
@@ -250,15 +263,15 @@
             this.ckboverwrite.Text = "overwrite";
             this.ckboverwrite.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // btnSetExtensions
             // 
-            this.button3.Location = new System.Drawing.Point(694, 83);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(121, 23);
-            this.button3.TabIndex = 19;
-            this.button3.Text = "Set Extensions";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.Button3_Click);
+            this.btnSetExtensions.Location = new System.Drawing.Point(694, 83);
+            this.btnSetExtensions.Name = "btnSetExtensions";
+            this.btnSetExtensions.Size = new System.Drawing.Size(121, 23);
+            this.btnSetExtensions.TabIndex = 19;
+            this.btnSetExtensions.Text = "Set Extensions";
+            this.btnSetExtensions.UseVisualStyleBackColor = true;
+            this.btnSetExtensions.Click += new System.EventHandler(this.btnSetExtensions_Click);
             // 
             // txtBatchFilePath
             // 
@@ -324,15 +337,15 @@
             this.label6.TabIndex = 12;
             this.label6.Text = "OutputDirectory";
             // 
-            // SetOriginalDir
+            // btnSetOriginalDir
             // 
-            this.SetOriginalDir.Location = new System.Drawing.Point(694, 112);
-            this.SetOriginalDir.Name = "SetOriginalDir";
-            this.SetOriginalDir.Size = new System.Drawing.Size(121, 23);
-            this.SetOriginalDir.TabIndex = 11;
-            this.SetOriginalDir.Text = "Set Origrinal";
-            this.SetOriginalDir.UseVisualStyleBackColor = true;
-            this.SetOriginalDir.Click += new System.EventHandler(this.SetOriginalDir_Click);
+            this.btnSetOriginalDir.Location = new System.Drawing.Point(694, 112);
+            this.btnSetOriginalDir.Name = "btnSetOriginalDir";
+            this.btnSetOriginalDir.Size = new System.Drawing.Size(121, 23);
+            this.btnSetOriginalDir.TabIndex = 11;
+            this.btnSetOriginalDir.Text = "Set Origrinal";
+            this.btnSetOriginalDir.UseVisualStyleBackColor = true;
+            this.btnSetOriginalDir.Click += new System.EventHandler(this.btnSetOriginalDir_Click);
             // 
             // txtOriginalDir
             // 
@@ -431,12 +444,13 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.btnCheck_Cancel);
             this.tabPage3.Controls.Add(this.btnCheck);
-            this.tabPage3.Controls.Add(this.btnSetOutput2);
-            this.tabPage3.Controls.Add(this.txtOutputDir2);
+            this.tabPage3.Controls.Add(this.btnCheck_SetOutput);
+            this.tabPage3.Controls.Add(this.txtCheck_OutputDir);
             this.tabPage3.Controls.Add(this.label8);
-            this.tabPage3.Controls.Add(this.SetOriginalDir2);
-            this.tabPage3.Controls.Add(this.txtOriginalDir2);
+            this.tabPage3.Controls.Add(this.btnCheck_SetOriginalDir);
+            this.tabPage3.Controls.Add(this.txtCheck_OriginalDir);
             this.tabPage3.Controls.Add(this.label9);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
@@ -445,23 +459,43 @@
             this.tabPage3.Text = "Check";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // btnSetOutput2
+            // btnCheck_Cancel
             // 
-            this.btnSetOutput2.Location = new System.Drawing.Point(691, 41);
-            this.btnSetOutput2.Name = "btnSetOutput2";
-            this.btnSetOutput2.Size = new System.Drawing.Size(121, 23);
-            this.btnSetOutput2.TabIndex = 20;
-            this.btnSetOutput2.Text = "Set Output";
-            this.btnSetOutput2.UseVisualStyleBackColor = true;
-            this.btnSetOutput2.Click += new System.EventHandler(this.BtnSetOutput2_Click);
+            this.btnCheck_Cancel.Location = new System.Drawing.Point(691, 125);
+            this.btnCheck_Cancel.Name = "btnCheck_Cancel";
+            this.btnCheck_Cancel.Size = new System.Drawing.Size(121, 48);
+            this.btnCheck_Cancel.TabIndex = 22;
+            this.btnCheck_Cancel.Text = "Cancel Check Threading";
+            this.btnCheck_Cancel.UseVisualStyleBackColor = true;
+            this.btnCheck_Cancel.Click += new System.EventHandler(this.BtnCheck_Cancel_Click);
             // 
-            // txtOutputDir2
+            // btnCheck
             // 
-            this.txtOutputDir2.Location = new System.Drawing.Point(137, 41);
-            this.txtOutputDir2.Name = "txtOutputDir2";
-            this.txtOutputDir2.Size = new System.Drawing.Size(516, 21);
-            this.txtOutputDir2.TabIndex = 19;
-            this.txtOutputDir2.Text = "C:\\test2 ui\\test AB";
+            this.btnCheck.Location = new System.Drawing.Point(691, 71);
+            this.btnCheck.Name = "btnCheck";
+            this.btnCheck.Size = new System.Drawing.Size(121, 48);
+            this.btnCheck.TabIndex = 21;
+            this.btnCheck.Text = "Check File";
+            this.btnCheck.UseVisualStyleBackColor = true;
+            this.btnCheck.Click += new System.EventHandler(this.BtnCheck_Click);
+            // 
+            // btnCheck_SetOutput
+            // 
+            this.btnCheck_SetOutput.Location = new System.Drawing.Point(691, 41);
+            this.btnCheck_SetOutput.Name = "btnCheck_SetOutput";
+            this.btnCheck_SetOutput.Size = new System.Drawing.Size(121, 23);
+            this.btnCheck_SetOutput.TabIndex = 20;
+            this.btnCheck_SetOutput.Text = "Set Output";
+            this.btnCheck_SetOutput.UseVisualStyleBackColor = true;
+            this.btnCheck_SetOutput.Click += new System.EventHandler(this.BtnCheck_SetOutput_Click);
+            // 
+            // txtCheck_OutputDir
+            // 
+            this.txtCheck_OutputDir.Location = new System.Drawing.Point(137, 41);
+            this.txtCheck_OutputDir.Name = "txtCheck_OutputDir";
+            this.txtCheck_OutputDir.Size = new System.Drawing.Size(516, 21);
+            this.txtCheck_OutputDir.TabIndex = 19;
+            this.txtCheck_OutputDir.Text = "C:\\test ui\\test AB";
             // 
             // label8
             // 
@@ -472,23 +506,23 @@
             this.label8.TabIndex = 18;
             this.label8.Text = "OutputDirectory";
             // 
-            // SetOriginalDir2
+            // btnCheck_SetOriginalDir
             // 
-            this.SetOriginalDir2.Location = new System.Drawing.Point(691, 12);
-            this.SetOriginalDir2.Name = "SetOriginalDir2";
-            this.SetOriginalDir2.Size = new System.Drawing.Size(121, 23);
-            this.SetOriginalDir2.TabIndex = 17;
-            this.SetOriginalDir2.Text = "Set Origrinal";
-            this.SetOriginalDir2.UseVisualStyleBackColor = true;
-            this.SetOriginalDir2.Click += new System.EventHandler(this.SetOriginalDir2_Click);
+            this.btnCheck_SetOriginalDir.Location = new System.Drawing.Point(691, 12);
+            this.btnCheck_SetOriginalDir.Name = "btnCheck_SetOriginalDir";
+            this.btnCheck_SetOriginalDir.Size = new System.Drawing.Size(121, 23);
+            this.btnCheck_SetOriginalDir.TabIndex = 17;
+            this.btnCheck_SetOriginalDir.Text = "Set Origrinal";
+            this.btnCheck_SetOriginalDir.UseVisualStyleBackColor = true;
+            this.btnCheck_SetOriginalDir.Click += new System.EventHandler(this.BtnCheck_SetOriginalDir_Click);
             // 
-            // txtOriginalDir2
+            // txtCheck_OriginalDir
             // 
-            this.txtOriginalDir2.Location = new System.Drawing.Point(138, 12);
-            this.txtOriginalDir2.Name = "txtOriginalDir2";
-            this.txtOriginalDir2.Size = new System.Drawing.Size(516, 21);
-            this.txtOriginalDir2.TabIndex = 16;
-            this.txtOriginalDir2.Text = "c:\\test AB";
+            this.txtCheck_OriginalDir.Location = new System.Drawing.Point(138, 12);
+            this.txtCheck_OriginalDir.Name = "txtCheck_OriginalDir";
+            this.txtCheck_OriginalDir.Size = new System.Drawing.Size(516, 21);
+            this.txtCheck_OriginalDir.TabIndex = 16;
+            this.txtCheck_OriginalDir.Text = "c:\\test AB";
             // 
             // label9
             // 
@@ -514,16 +548,6 @@
             // 
             this.openFile.FileName = "soffice";
             // 
-            // btnCheck
-            // 
-            this.btnCheck.Location = new System.Drawing.Point(691, 71);
-            this.btnCheck.Name = "btnCheck";
-            this.btnCheck.Size = new System.Drawing.Size(121, 79);
-            this.btnCheck.TabIndex = 21;
-            this.btnCheck.Text = "Check File";
-            this.btnCheck.UseVisualStyleBackColor = true;
-            this.btnCheck.Click += new System.EventHandler(this.BtnCheck_Click);
-            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -532,6 +556,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "FormMain";
             this.Text = "Konvertering Verktyg";
+            this.Load += new System.EventHandler(this.FormMain_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
@@ -569,7 +594,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtOutputFileExtension;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button SetOriginalDir;
+        private System.Windows.Forms.Button btnSetOriginalDir;
         private System.Windows.Forms.TextBox txtOriginalDir;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtOriginalExtension;
@@ -583,16 +608,18 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnSetExtensions;
         private System.Windows.Forms.CheckBox ckboverwrite;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.Button btnSetOutput2;
-        private System.Windows.Forms.TextBox txtOutputDir2;
+        private System.Windows.Forms.Button btnCheck_SetOutput;
+        private System.Windows.Forms.TextBox txtCheck_OutputDir;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Button SetOriginalDir2;
-        private System.Windows.Forms.TextBox txtOriginalDir2;
+        private System.Windows.Forms.Button btnCheck_SetOriginalDir;
+        private System.Windows.Forms.TextBox txtCheck_OriginalDir;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btnCheck;
+        private System.Windows.Forms.Button btnCancelConverting;
+        private System.Windows.Forms.Button btnCheck_Cancel;
     }
 }
 
