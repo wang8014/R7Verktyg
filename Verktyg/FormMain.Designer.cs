@@ -71,9 +71,21 @@
             this.btnCheck_SetOriginalDir = new System.Windows.Forms.Button();
             this.txtCheck_OriginalDir = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.btnConflict_SetOriginalDir = new System.Windows.Forms.Button();
+            this.txtConflict_OriginalDir = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.btnConflict_CancelAnalysis = new System.Windows.Forms.Button();
+            this.btnConflict_Analyze = new System.Windows.Forms.Button();
+            this.btnConflict_SetExtension = new System.Windows.Forms.Button();
+            this.txtConflict_OriginalFileExtension = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtConflict_OutputFileExtension = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFold = new System.Windows.Forms.FolderBrowserDialog();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
+            this.ckbConflict_showAllFolder = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -82,6 +94,7 @@
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -108,6 +121,7 @@
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -326,7 +340,7 @@
             this.txtOutputDir.Name = "txtOutputDir";
             this.txtOutputDir.Size = new System.Drawing.Size(547, 21);
             this.txtOutputDir.TabIndex = 13;
-            this.txtOutputDir.Text = "C:\\test2 ui\\test AB";
+            this.txtOutputDir.Text = "C:\\test ui\\test AB";
             // 
             // label6
             // 
@@ -533,6 +547,117 @@
             this.label9.TabIndex = 15;
             this.label9.Text = "OriginalDirectory";
             // 
+            // tabPage4
+            // 
+            this.tabPage4.Controls.Add(this.ckbConflict_showAllFolder);
+            this.tabPage4.Controls.Add(this.btnConflict_SetOriginalDir);
+            this.tabPage4.Controls.Add(this.txtConflict_OriginalDir);
+            this.tabPage4.Controls.Add(this.label12);
+            this.tabPage4.Controls.Add(this.btnConflict_CancelAnalysis);
+            this.tabPage4.Controls.Add(this.btnConflict_Analyze);
+            this.tabPage4.Controls.Add(this.btnConflict_SetExtension);
+            this.tabPage4.Controls.Add(this.txtConflict_OriginalFileExtension);
+            this.tabPage4.Controls.Add(this.label10);
+            this.tabPage4.Controls.Add(this.txtConflict_OutputFileExtension);
+            this.tabPage4.Controls.Add(this.label11);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(844, 251);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "name conflict";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // btnConflict_SetOriginalDir
+            // 
+            this.btnConflict_SetOriginalDir.Location = new System.Drawing.Point(696, 14);
+            this.btnConflict_SetOriginalDir.Name = "btnConflict_SetOriginalDir";
+            this.btnConflict_SetOriginalDir.Size = new System.Drawing.Size(121, 23);
+            this.btnConflict_SetOriginalDir.TabIndex = 28;
+            this.btnConflict_SetOriginalDir.Text = "Set Origrinal";
+            this.btnConflict_SetOriginalDir.UseVisualStyleBackColor = true;
+            this.btnConflict_SetOriginalDir.Click += new System.EventHandler(this.BtnConflict_SetOriginalDir_Click);
+            // 
+            // txtConflict_OriginalDir
+            // 
+            this.txtConflict_OriginalDir.Location = new System.Drawing.Point(143, 14);
+            this.txtConflict_OriginalDir.Name = "txtConflict_OriginalDir";
+            this.txtConflict_OriginalDir.Size = new System.Drawing.Size(547, 21);
+            this.txtConflict_OriginalDir.TabIndex = 27;
+            this.txtConflict_OriginalDir.Text = "c:\\test AB";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(11, 17);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(107, 12);
+            this.label12.TabIndex = 26;
+            this.label12.Text = "OriginalDirectory";
+            // 
+            // btnConflict_CancelAnalysis
+            // 
+            this.btnConflict_CancelAnalysis.Location = new System.Drawing.Point(696, 139);
+            this.btnConflict_CancelAnalysis.Name = "btnConflict_CancelAnalysis";
+            this.btnConflict_CancelAnalysis.Size = new System.Drawing.Size(121, 38);
+            this.btnConflict_CancelAnalysis.TabIndex = 25;
+            this.btnConflict_CancelAnalysis.Text = "Cancel Analysis";
+            this.btnConflict_CancelAnalysis.UseVisualStyleBackColor = true;
+            this.btnConflict_CancelAnalysis.Click += new System.EventHandler(this.BtnConflict_CancelAnalysis_Click);
+            // 
+            // btnConflict_Analyze
+            // 
+            this.btnConflict_Analyze.Location = new System.Drawing.Point(696, 95);
+            this.btnConflict_Analyze.Name = "btnConflict_Analyze";
+            this.btnConflict_Analyze.Size = new System.Drawing.Size(121, 38);
+            this.btnConflict_Analyze.TabIndex = 25;
+            this.btnConflict_Analyze.Text = "Analyze";
+            this.btnConflict_Analyze.UseVisualStyleBackColor = true;
+            this.btnConflict_Analyze.Click += new System.EventHandler(this.BtnConflict_Analyze_Click);
+            // 
+            // btnConflict_SetExtension
+            // 
+            this.btnConflict_SetExtension.Location = new System.Drawing.Point(696, 66);
+            this.btnConflict_SetExtension.Name = "btnConflict_SetExtension";
+            this.btnConflict_SetExtension.Size = new System.Drawing.Size(121, 23);
+            this.btnConflict_SetExtension.TabIndex = 24;
+            this.btnConflict_SetExtension.Text = "Set Extensions";
+            this.btnConflict_SetExtension.UseVisualStyleBackColor = true;
+            this.btnConflict_SetExtension.Click += new System.EventHandler(this.BtnConflict_SetExtension_Click);
+            // 
+            // txtConflict_OriginalFileExtension
+            // 
+            this.txtConflict_OriginalFileExtension.Location = new System.Drawing.Point(143, 68);
+            this.txtConflict_OriginalFileExtension.Name = "txtConflict_OriginalFileExtension";
+            this.txtConflict_OriginalFileExtension.Size = new System.Drawing.Size(547, 21);
+            this.txtConflict_OriginalFileExtension.TabIndex = 23;
+            this.txtConflict_OriginalFileExtension.Text = "docx";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(11, 71);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(131, 12);
+            this.label10.TabIndex = 22;
+            this.label10.Text = "OriginalFileExtension";
+            // 
+            // txtConflict_OutputFileExtension
+            // 
+            this.txtConflict_OutputFileExtension.Location = new System.Drawing.Point(143, 41);
+            this.txtConflict_OutputFileExtension.Name = "txtConflict_OutputFileExtension";
+            this.txtConflict_OutputFileExtension.Size = new System.Drawing.Size(547, 21);
+            this.txtConflict_OutputFileExtension.TabIndex = 21;
+            this.txtConflict_OutputFileExtension.Text = "pdf";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(11, 44);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(119, 12);
+            this.label11.TabIndex = 20;
+            this.label11.Text = "OutputFileExtension";
+            // 
             // richTextBox1
             // 
             this.richTextBox1.BackColor = System.Drawing.SystemColors.WindowText;
@@ -547,6 +672,16 @@
             // openFile
             // 
             this.openFile.FileName = "soffice";
+            // 
+            // ckbConflict_showAllFolder
+            // 
+            this.ckbConflict_showAllFolder.AutoSize = true;
+            this.ckbConflict_showAllFolder.Location = new System.Drawing.Point(13, 95);
+            this.ckbConflict_showAllFolder.Name = "ckbConflict_showAllFolder";
+            this.ckbConflict_showAllFolder.Size = new System.Drawing.Size(234, 16);
+            this.ckbConflict_showAllFolder.TabIndex = 29;
+            this.ckbConflict_showAllFolder.Text = "Show information of all the folders";
+            this.ckbConflict_showAllFolder.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -568,6 +703,8 @@
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -620,6 +757,18 @@
         private System.Windows.Forms.Button btnCheck;
         private System.Windows.Forms.Button btnCancelConverting;
         private System.Windows.Forms.Button btnCheck_Cancel;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button btnConflict_Analyze;
+        private System.Windows.Forms.Button btnConflict_SetExtension;
+        private System.Windows.Forms.TextBox txtConflict_OriginalFileExtension;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox txtConflict_OutputFileExtension;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button btnConflict_CancelAnalysis;
+        private System.Windows.Forms.Button btnConflict_SetOriginalDir;
+        private System.Windows.Forms.TextBox txtConflict_OriginalDir;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.CheckBox ckbConflict_showAllFolder;
     }
 }
 

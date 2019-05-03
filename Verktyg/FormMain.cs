@@ -27,7 +27,7 @@ namespace Verktyg
 
         private Task task;
         private CancellationTokenSource tokenSource = new CancellationTokenSource();
-
+        private int CheckNumber = 0;
         private CancellationToken token;
         List<string> commandList = new List<string>();
         #endregion 
@@ -555,7 +555,182 @@ namespace Verktyg
         #endregion
         #endregion LibreOffice Convert
 
+        #region Name Conflict
+        #region Button Click
+        private void BtnConflict_SetExtension_Click(object sender, EventArgs e)
+        {
+            FormSetting f = new FormSetting();
+            f.InitialExtensions(this.txtConflict_OriginalFileExtension.Text);
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                this.txtConflict_OriginalFileExtension.Text = f.GetExtensions();
+            }
+        }
+        private async void BtnConflict_Analyze_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                tokenSource = new CancellationTokenSource();
+                token = tokenSource.Token;
+                SetNameConflictButtonStatus(false);
+                await AnalyzeNameConflict();
+            }
+            catch (Exception ex)
+            {
 
+            }
+            finally
+            {
+                this.BeginInvoke(new SetbuttonStatus(SetNameConflictButtonStatus), new object[] { true });
+            }
+        }
+
+        private void BtnConflict_CancelAnalysis_Click(object sender, EventArgs e)
+        {
+            ((Button)sender).Enabled = false;
+            CancelTask();
+            if (task.IsCompleted) { this.SetNameConflictButtonStatus(true); }
+        }
+        private void BtnConflict_SetOriginalDir_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = OpenFoldDialog();
+            if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
+            {
+                this.txtConflict_OriginalDir.Text = this.openFold.SelectedPath;
+            }
+        }
+        #endregion Buttoon Click
+
+        #region Threading Function
+        private Task AnalyzeNameConflict()
+        {
+            task = Task.Run(() => AnalyzeNameConflictThread());
+            return task;
+        }
+        private void AnalyzeNameConflictThread()
+        {
+            CheckNumber = 0;
+            NameConflictParameter param = GetNameConflictParameter();
+            if (!NameConflictPathCheck(param)) { return; }
+            Log("FileName\tPath\tConflict Files");
+            AnalyzeNameConflictThreadSub(param);
+            RecordGreenlog("Finished!", true);
+        }
+        private void AnalyzeNameConflictThreadSub(NameConflictParameter param)
+        {
+            //NameConflictPathCheck(param.OriginalDirectory);
+            
+            DirectoryInfo originalFold = new DirectoryInfo(param.OriginalDirectory);
+            Log("Analyzing [" + originalFold.FullName + "]");
+
+            var originalfiles = originalFold.GetFiles().Where(s => {
+                bool rtn = false;
+                var extensionlist = param.OriginalExtension.Split(';');
+                foreach (string item in extensionlist)
+                {
+                    rtn = rtn || s.Name.EndsWith("." + item);
+                }
+
+                return rtn;
+                //s.Name.EndsWith(".exe") || s.Name.EndsWith(".doc") || s.Name.EndsWith(".docx")
+            }
+            );
+            List<NameConflictResult> listNameConflictResult = new List<NameConflictResult>();
+            IEnumerable<FileInfo> ListAllFile = (IEnumerable<FileInfo>)originalfiles.Where<FileInfo>(s => { return true; });
+
+
+            // Check OrigLinal First
+            foreach (FileInfo file in originalfiles)
+            {
+                if (token.IsCancellationRequested)
+                {
+                    // Clean up here, then...
+                    RecordRedlog("Task is canceled.");
+                    this.BeginInvoke(new SetbuttonStatus(this.SetNameConflictButtonStatus), new object[] { true });
+                    token.ThrowIfCancellationRequested();
+                }
+                // remove self first
+                ListAllFile = (IEnumerable<FileInfo>)ListAllFile.Except(new FileInfo[] { file } );
+                var conflictList = ListAllFile.Where(item => { return Path.GetFileNameWithoutExtension(file.Name) == Path.GetFileNameWithoutExtension(item.Name); });
+                if (conflictList.Count() > 0)
+                {
+                    NameConflictResult conflictresult = new NameConflictResult();
+                    conflictresult.OriginalFileName = file.Name;
+                    conflictresult.Path = param.OriginalDirectory;
+                    conflictresult.ExtensionName = Path.GetExtension(file.Name);
+                    foreach(FileInfo s in conflictList) {
+                        conflictresult.NameConflictFileName += s.Name + " ; ";
+                        // remove conflict file
+                        ListAllFile = (IEnumerable<FileInfo>)ListAllFile.Except(new FileInfo[] { s });
+                    }
+                    listNameConflictResult.Add(conflictresult);
+                }
+                
+                
+            }
+            if (param.IsShowFolder) { 
+                if (listNameConflictResult.Count() == 0)
+                {
+                    // none conflict files under this folder
+                    NameConflictResult conflictresult = new NameConflictResult();
+                    conflictresult.OriginalFileName = "OK";
+                    conflictresult.Path = param.OriginalDirectory;
+                    conflictresult.NameConflictFileName = "none conflicts";
+                    listNameConflictResult.Add(conflictresult);
+                }
+            }
+            DeleteLog(2);
+            LogConflictResult(listNameConflictResult);
+            foreach (DirectoryInfo dir in originalFold.GetDirectories())
+            {
+                NameConflictParameter paramSub = (NameConflictParameter)param.Clone();
+                paramSub.OriginalDirectory = dir.FullName;
+                
+                AnalyzeNameConflictThreadSub(paramSub);
+            }
+        }
+        private NameConflictParameter GetNameConflictParameter()
+        {
+            NameConflictParameter param = new NameConflictParameter();
+            param.OriginalDirectory = this.txtConflict_OriginalDir.Text.Trim();
+            param.OriginalExtension = this.txtConflict_OriginalFileExtension.Text.Trim();
+            param.DestinationExtension = this.txtConflict_OutputFileExtension.Text.Trim();
+            param.IsShowFolder = this.ckbConflict_showAllFolder.Checked;
+            return param;
+        }
+        private bool NameConflictPathCheck(NameConflictParameter param)
+        {
+            DirectoryInfo originalFold = new DirectoryInfo(param.OriginalDirectory);
+            if (!originalFold.Exists) { Log("Original Path is not exists."); return false; }
+            return true;
+        }
+        private void LogConflictResult(List<NameConflictResult> list)
+        {
+            foreach(NameConflictResult item in list)
+            {
+                LogConflictResult(item);
+                
+            }
+        }
+        private void LogConflictResult(NameConflictResult result)
+        {
+            if (result.OriginalFileName == "OK")
+                RecordWhitelog(result.OriginalFileName + "\t" + result.Path + "\t" + result.NameConflictFileName, true);
+            else
+                RecordRedlog(result.OriginalFileName + "\t" + result.Path + "\t" + result.NameConflictFileName, true);
+        }
+
+        #endregion  Threading Function
+
+        #region Button Status controll
+        private void SetNameConflictButtonStatus(bool flag)
+        {
+            this.btnConflict_Analyze.Enabled = flag;
+            this.btnConflict_SetExtension.Enabled = flag;
+            this.btnConflict_CancelAnalysis.Enabled = !flag;
+        }
+        #endregion Button Status controll
+        #endregion Name Conflict
 
         #region CheckFile Operation
         #region Button Click
@@ -609,10 +784,12 @@ namespace Verktyg
         }
         private void CheckFileThread()
         {
+            CheckNumber = 0;
             CheckFileParameter paramCheckFile = GetCheckFileParameter();
             if (!PathCheck(paramCheckFile)) { return; }
-            Log("Valid\tOriginal Size\tOouput Size\tOriginal Extension\tOutput Extension\tOriginal FileName\tOriginal Path\tDestination FileName\tDestination Path");
+            Log("number\tValid\tOriginal Size\tSize(Ori) Abbreviation\tOouput Size\tSize(Out) Abbreviation\ttOriginal Extension\tOutput Extension\tOriginal FileName\tOriginal Path\tDestination FileName\tDestination Path");
             CheckFileThreadSub(paramCheckFile);
+            RecordGreenlog("Finished!", true);
         }
         private bool CheckDirectoryIsExists(string path,bool isCreate) {
             if(System.IO.File.Exists(path)) { return true; }
@@ -747,6 +924,9 @@ namespace Verktyg
             if (result != null)
             {
                 //Log((result.isValid ? "OK" : "No") + "\t"  + result.OriginalFileSize.ToString("F2") + "KB" + "\t" + result.DestinationFileSize.ToString("F2") + "KB" + "\t" + result.OriginalExtension  + "\t" + result.DestinationExtension + "\t" + result.OriginalFileNameWithExtension + "\t" + result.DestinationPath);
+                // Mike add Number, Exact Size
+                CheckNumber += 1;
+                RecordWhitelog(CheckNumber.ToString() + "\t");
                 if (result.isValid)
                 {
                     RecordWhitelog("OK", false);
@@ -755,9 +935,14 @@ namespace Verktyg
                 {
                     RecordRedlog("No", false);
                 }
+                RecordWhitelog("\t", false);
+                RecordWhitelog(result.OriginalFileSize.ToString("N0"), false);
 
                 RecordWhitelog("\t", false);
                 RecordWhitelog(GetByteDescription(result.OriginalFileSize), false);
+
+                RecordWhitelog("\t", false);
+                RecordWhitelog(result.DestinationFileSize.ToString("N0"), false);
 
                 RecordWhitelog("\t", false);
                 RecordWhitelog(GetByteDescription(result.DestinationFileSize), false);
@@ -875,13 +1060,20 @@ namespace Verktyg
                 if (line > 0)
                 {
                     //this.richTextBox1.Doc
-                    int enter = this.richTextBox1.Text.LastIndexOf("\n");
-                    while ((enter >= 0) && (line > 0))
+                    int start = this.richTextBox1.Text.LastIndexOf("\n");
+                    int end = this.richTextBox1.TextLength;
+                    int len = end - start;
+                    while ((start >= 0) && (line > 0))
                     {
-                        this.richTextBox1.Text = this.richTextBox1.Text.Remove(enter);
+                        //this.richTextBox1.Text = this.richTextBox1.Text.Remove(enter);
+                        this.richTextBox1.Select(start, len);
+                        this.richTextBox1.SelectedText = "";
                         line -= 1;
-                        enter = this.richTextBox1.Text.LastIndexOf("\n");
+                        start = this.richTextBox1.Text.LastIndexOf("\n");
+                        end = this.richTextBox1.TextLength;
+                        len = end - start;
                     }
+
                 }
                 Log("");
             }
@@ -974,13 +1166,36 @@ namespace Verktyg
         {
 
         }
+
+        
     }
 
+    public class NameConflictParameter : ICloneable
+    {
+        public string OriginalDirectory { get; set; }
+        public string OriginalExtension { get; set; }
+        public string DestinationExtension { get; set; }
 
+        public bool IsShowFolder { get; set; }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+        public NameConflictParameter()
+        {
+            OriginalDirectory = "";
+            DestinationExtension = "";
+            OriginalExtension = "";
+            IsShowFolder = false;
+        }
+    }
     public class CheckFileParameter : ICloneable
     {
         public string OriginalDirectory { get; set; }
+        public string OriginalExtension { get; set; }
         public string OutputDirectory { get; set; }
+
+        
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -988,6 +1203,24 @@ namespace Verktyg
         public CheckFileParameter() {
             OriginalDirectory = "";
             OutputDirectory = "";
+        }
+    }
+    public class NameConflictResult
+    {
+        public string NameConflictFileName { get; set; }
+        public string ExtensionName { get; set; }
+        public string OriginalFileName { get; set; }
+        public string Path { get; set; }
+        public NameConflictResult()
+        {
+            NameConflictFileName = "";
+            ExtensionName = "";
+            OriginalFileName = "";
+            Path = "";
+        }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
     public class CheckResult
