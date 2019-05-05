@@ -11,6 +11,9 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
+using Verktyg.Tools;
+using Verktyg.Log;
+using Verktyg.Threading;
 
 namespace Verktyg
 {
@@ -23,25 +26,28 @@ namespace Verktyg
         public delegate void InvokeLogWithColor(string text, System.Drawing.Color color, bool medEnterteck);
         public delegate void SetbuttonStatus(bool flag);
         
-        private const string ConstContinueing = "Continueing...\r\n";
+        
 
         private Task task;
         private CancellationTokenSource tokenSource = new CancellationTokenSource();
-        private int CheckNumber = 0;
+        //private int CheckNumber = 0;
         private CancellationToken token;
-        List<string> commandList = new List<string>();
-        #endregion
+        
 
+        private CustomizedLog log;
+        #endregion
+        
 
         public FormMain()
         {
             InitializeComponent();
             token = tokenSource.Token;
+            log = new CustomizedLog(this.richTextBox1);
         }
 
         #region Test
 
-        private async void Button2_Click(object sender, EventArgs e)
+        private void Button2_Click(object sender, EventArgs e)
         {
             //tokenSource = new CancellationTokenSource();
             //token = tokenSource.Token;
@@ -52,10 +58,10 @@ namespace Verktyg
             //}
             //catch (Exception ex)
             //{
-            //    Log("task isCanceled:" + task.IsCanceled.ToString());
-            //    Log("task isCompleted" + task.IsCompleted.ToString());
+            //    log.Log("task isCanceled:" + task.IsCanceled.ToString());
+            //    log.Log("task isCompleted" + task.IsCompleted.ToString());
             //}
-            // Log(Path.GetExtension("intervju.docx"));
+            // log.Log(Path.GetExtension("intervju.docx"));
             //FileInfo oneFile = new FileInfo(@"c:\test AB\intervju.docx");
             //FileInfo twoFile = oneFile.;
             //Get original files list
@@ -73,9 +79,9 @@ namespace Verktyg
             });
             foreach (FileInfo item in originalFileList)
             {
-                Log(item.Name + "\t" + item.Length.ToString());
+                log.Log(item.Name + "\t" + item.Length.ToString());
             }
-            LogContinue();
+            log.LogContinue();
             //Get LibreOffice support list
             var LibreOfficeSupportFileList = originalFold.GetFiles().Where(s =>
             {
@@ -96,14 +102,14 @@ namespace Verktyg
             ////Create converting File List
             ////foreach (FileInfo file in originalFileList)
             ////{
-            Log("Except vaccine_Jessica");
+            log.Log("Except vaccine_Jessica");
             originalFileList = originalFileList.Except(result);
             foreach (FileInfo item in originalFileList)
             {
-                Log(item.Name + "\t" + item.Length.ToString());
+                log.Log(item.Name + "\t" + item.Length.ToString());
                 
             }
-            LogContinue();
+            log.LogContinue();
 
             originalFileList = originalFold.GetFiles().Where(s =>
             {
@@ -116,13 +122,13 @@ namespace Verktyg
 
                 return rtn;
             });
-            Log("Except FileInfoComparer");
+            log.Log("Except FileInfoComparer");
             originalFileList = originalFileList.Except(result, new FileInfoComparer());
 
             while(originalFileList.Count()>0)  // (FileInfo item in originalFileList)
             {
                 FileInfo file = originalFileList.First();
-                Log(file.Name + "\t" + file.Length.ToString());
+                log.Log(file.Name + "\t" + file.Length.ToString());
                 originalFileList = originalFileList.Except(new FileInfo[] { file }, new FileInfoComparer());
             }
 
@@ -134,12 +140,14 @@ namespace Verktyg
         private void Button1_Click(object sender, EventArgs e)
         {
             //RecordBluelog("converting is started", true);
-            tokenSource.Cancel();
-            while (!task.IsCompleted) { 
-                Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " task isCanceled:" + task.IsCanceled.ToString());
-                Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " task isCompleted:" + task.IsCompleted.ToString());
-            }
-
+            //tokenSource.Cancel();
+            //while (!task.IsCompleted) { 
+            //    Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " task isCanceled:" + task.IsCanceled.ToString());
+            //    Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " task isCompleted:" + task.IsCompleted.ToString());
+            //}
+            log.Log("first line");
+            log.RecordBluelog("blue log");
+            log.RecordRedlog("red log");
 
         }
         private void doSomething(int number)
@@ -153,7 +161,7 @@ namespace Verktyg
                     // Clean up here, then...
                     token.ThrowIfCancellationRequested();
                 }
-                Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " loop " + i.ToString());
+                log.Log(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.sss") + " loop " + i.ToString());
             }
 
         }
@@ -162,11 +170,23 @@ namespace Verktyg
 
         #region Folder Operation
         #region Button Click 
+        private void BtnCancel_Copy_Click(object sender, EventArgs e)
+        {
+            ((Button)sender).Enabled = false;
+            CancelTask();
+            if (task.IsCompleted) { this.SetFolderButtonStatus(true); }
+
+        }
         private void BtnSetOriginal_Click(object sender, EventArgs e)
         {
             SetOriginalFold();
         }
-
+        private void BtnCancel_DeleteFile_Click(object sender, EventArgs e)
+        {
+            ((Button)sender).Enabled = false;
+            CancelTask();
+            if (task.IsCompleted) { this.SetFolderButtonStatus(true); }
+        }
         private void BtnSetDestination_Click(object sender, EventArgs e)
         {
             SetDestinationFold();
@@ -176,16 +196,51 @@ namespace Verktyg
             DialogResult dr = OpenFoldDialog();
             if ((dr == DialogResult.Yes) || (dr == DialogResult.OK))
             {
-                await DeleteAllfiles(openFold.SelectedPath);
+                // await DeleteAllfiles(openFold.SelectedPath);
+                try
+                {
+                    this.SetFolderButtonStatus(false);
+                    StartNewTask();
+                    DeleteFileParameter param = new DeleteFileParameter();
+                    param.OutoutDirectoy = openFold.SelectedPath.Trim();
+                    DeleteFile deleteThreading = new DeleteFile(this.log, this.tokenSource, param);
+                    task = deleteThreading.Run();
+                    await task;
+                    //
+                }
+                catch (Exception ex)
+                {
+                    log.RecordError(ex.Message);
+                    //this.SetFolderButtonStatus(true);
+                }
+                finally
+                {
+                    this.SetFolderButtonStatus(true);
+                }
             }
+            
         }
         private async void BtnCopyFolder_Click(object sender, EventArgs e)
         {
             try
             {
-                await CopyFolder();
+                this.SetFolderButtonStatus(false);
+                StartNewTask();
+                CopyFileParameter param = new CopyFileParameter();
+                param.OutoutDirectoy = this.lbDestination.Text.Trim();
+                param.OriginalDirectory = this.lbOriginal.Text.Trim();
+                CopyFolder copyThreading = new CopyFolder(this.log, this.tokenSource, param);
+                task = copyThreading.Run();
+                await task;
+                //
             }
             catch (Exception ex){
+                log.RecordError(ex.Message);
+                //this.SetFolderButtonStatus(true);
+            }
+            finally
+            {
+                this.SetFolderButtonStatus(true);
             }
         }
         #endregion Button Click
@@ -225,69 +280,17 @@ namespace Verktyg
 
         }
 
-        
-
-        
-
-        #region Threading function
-        private Task CopyFolder()
+        private void SetFolderButtonStatus(bool flag)
         {
-            task = Task.Run(()=> { 
-                DirectoryInfo originalFold = new DirectoryInfo(this.lbOriginal.Text);
-                DirectoryInfo destinationFold = new DirectoryInfo(this.lbDestination.Text);
-
-                if (!originalFold.Exists) { return; }
-                if (!destinationFold.Exists) { return; }
-                CreateFolder(originalFold.FullName, destinationFold.FullName);
-            });
-            return task;
+            this.btnCopyFolder.Enabled = flag;
+            this.btnDeleteAllFiles.Enabled = flag;
+            this.btnSetDestination.Enabled = flag;
+            this.btnSetOriginal.Enabled = flag;
+            this.btnCancel_Copy.Enabled = !flag;
+            this.btnDeleteAllFiles.Enabled = flag;
+            this.btnCancel_Copy.Enabled = !flag;
         }
-        
-        private void CreateFolder(string originalFoldName, string destinationFoldName)
-        {
-            DirectoryInfo originalFold = new DirectoryInfo(originalFoldName);
-            DirectoryInfo destinationFold = new DirectoryInfo(destinationFoldName);
-            Log(originalFold.Name + "\t" + originalFold.GetFiles().Length.ToString() + "\t" + originalFold.FullName + "\r\n");
 
-
-            if (!System.IO.Directory.Exists(destinationFoldName + "\\" + originalFold.Name))
-            {
-                System.IO.Directory.CreateDirectory(destinationFoldName + "\\" + originalFold.Name);
-            }
-            foreach (DirectoryInfo dir in originalFold.GetDirectories())
-            {
-                CreateFolder(dir.FullName, destinationFoldName + "\\" + originalFold.Name);
-            }
-        }
-        private Task DeleteAllfiles(string Dir)
-        {
-            task = Task.Run(() =>
-            {
-                DirectoryInfo originalFold = new DirectoryInfo(Dir);
-                if (!originalFold.Exists) { return; }
-                foreach (FileInfo file in originalFold.GetFiles())
-                {
-                    try
-                    {
-                        //System.IO.File.Delete(file.FullName);
-                        file.Delete();
-                        Log(file.FullName + " is deleted.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(" Not delete the file[" + file.FullName + "]");
-                    }
-                }
-                foreach (DirectoryInfo dirinfo in originalFold.GetDirectories())
-                {
-                    Log("Folder[" + dirinfo.FullName + "]");
-                    Task.Run(() => DeleteAllfiles(dirinfo.FullName));
-                }
-            });
-            return task;
-
-        }
-        #endregion Threading function
         #endregion Folder Operation
 
 
@@ -330,20 +333,24 @@ namespace Verktyg
         {
             try
             {
-                tokenSource = new CancellationTokenSource();
-                token = tokenSource.Token;
                 this.SetLibreOfficeButtonStatus(false);
-                await CreateBatch();
+                StartNewTask();
+                LibreOfficeParameter param = GetLibreOfficeParamter();
+                LibreOfficeConvert convertThreading = new LibreOfficeConvert(this.log, this.tokenSource, param);
+                task = convertThreading.Run();
+                await task;
+                //
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Log(ex.Message);
-                LogTaskCancel("Converting");
+                log.RecordError(ex.Message);
+                //this.SetFolderButtonStatus(true);
             }
-            finally{
-                this.BeginInvoke(new SetbuttonStatus(SetLibreOfficeButtonStatus), new object[] { true });
+            finally
+            {
+                this.SetLibreOfficeButtonStatus(true);
+            }
 
-            }
         }
 
         private void BtnCancelConverting_Click(object sender, EventArgs e)
@@ -351,226 +358,9 @@ namespace Verktyg
             ((Button)sender).Enabled = false;
             CancelTask();
             if (task.IsCompleted) { this.SetCheckFileButtonStatus(true); }
-            //while (!task.IsCompleted)
-            //{
-            //    Thread.Sleep(500);
-            //}
-            //task.Wait();
-
+            
         }
         #endregion Buttion Click
-
-        #region thread function
-        private Task CreateBatch()
-        {
-            LogTaskBegin("Converting");
-            task = Task.Run(() =>
-            {
-                LibreOfficeParameter librparam = this.GetLibreOfficeParamter();
-                if (!CheckLibreOfficeParamter(librparam)) { return; }
-
-                commandList.Clear();
-                Log("Time\t\tFileName");
-                CreateBatchSub(librparam);
-
-
-                FileInfo finfo = new FileInfo(this.txtBatchFilePath.Text.Trim());
-
-                if (!System.IO.Directory.Exists(finfo.DirectoryName))
-                {
-                    System.IO.Directory.CreateDirectory(finfo.DirectoryName);
-                }
-                using (System.IO.StreamWriter file =
-                new System.IO.StreamWriter(this.txtBatchFilePath.Text.Trim(), false))
-                {
-                    foreach (string line in commandList)
-                    {
-                        // If the line doesn't contain the word 'Second', write the line to the file.
-
-                        file.WriteLine(line);
-
-                    }
-                }
-                //DeleteLog(2);
-                LogTaskEnd("Converting");
-            });
-            return task;
-
-
-        }
-        private void CreateBatchSub(LibreOfficeParameter librparam)
-        {
-            CheckDirectoryIsExists(librparam.OriginalDirectory, true);
-            CheckDirectoryIsExists(librparam.OutputDirectory, true);
-            DirectoryInfo originalFold = new DirectoryInfo(librparam.OriginalDirectory);
-            DirectoryInfo destinationFold = new DirectoryInfo(librparam.OutputDirectory);
-            if (!originalFold.Exists) { return; }
-            if (!destinationFold.Exists) { return; }
-
-            //
-            List<PairFile> convertingFileList = new List<PairFile>();
-
-            //Get original files list
-            var originalFileList = originalFold.GetFiles().Where(s => {
-                bool rtn = false;
-                var extensionlist = librparam.OriginalExtesnsion.Split(';');
-                foreach (string item in extensionlist)
-                {
-                    rtn = rtn || s.Name.EndsWith("." + item);
-                }
-
-                return rtn;
-            });
-            //Get LibreOffice support list
-            var LibreOfficeSupportFileList = originalFold.GetFiles().Where(s => {
-                bool rtn = false;
-                var extensionlist = librparam.AllExtensionOfLibreOfficeSupporting.Split(';');
-                foreach (string item in extensionlist)
-                {
-                    rtn = rtn || s.Name.EndsWith("." + item);
-                }
-
-                return rtn;
-            });
-
-            //Create converting File List
-            while (originalFileList.Count() > 0)  // (FileInfo item in originalFileList)
-            {
-                FileInfo file = originalFileList.First();
-                // originalFileList = originalFileList.Except(new FileInfo[] { file }, new FileInfoComparer());
-
-                IEnumerable<FileInfo> result = LibreOfficeSupportFileList.Where(s =>
-                {
-                    return Path.GetFileNameWithoutExtension(file.Name) == Path.GetFileNameWithoutExtension(s.Name);
-                });
-                originalFileList = originalFileList.Except(result, new FileInfoComparer());
-
-                if (result.Count() == 1)
-                {
-                    //no conflict
-                    //reduce originalFileList 
-                    PairFile pairFile = GetPairFile(librparam, result.First(), false, 0);
-                    convertingFileList.Add(pairFile);
-                }
-                else
-                {
-                    //result.Count() must >1 , no possible it is < 1
-                    //conflict happens
-
-                    byte index = 1;
-                    foreach (FileInfo item in result)
-                    {
-
-                        PairFile pairFile = GetPairFile(librparam, item, true, index);
-                        pairFile.CreateSerialNumberFile();
-                        convertingFileList.Add(pairFile);
-                        index += 1;
-                    }
-                }
-            }
-            
-            //Convert file
-            foreach (PairFile file in convertingFileList)
-            {
-                try
-                {
-                    
-                    string temp = GetCommand(librparam, file);
-                    commandList.Add(temp);
-                    DateTime dtStart = System.DateTime.Now;
-                    Log("Convert file [" + file.originalFile.FullName + "][" + this.GetByteDescription(file.originalFile.Length) + "]");
-                    LogContinue();
-                    if (token.IsCancellationRequested)
-                    {
-                        // Clean up here, then...
-                        DeleteLog(3);
-                        LogTaskCancel("Converting");
-                        this.BeginInvoke(new SetbuttonStatus(SetLibreOfficeButtonStatus), new object[] { true });
-                        token.ThrowIfCancellationRequested();
-                    }
-                    
-                    bool isNeedConvert = true;
-                    if(!librparam.Isoverwrite) {
-                        if(System.IO.File.Exists(librparam.OutputDirectory + "\\" + file.outputFileName))
-                        {
-                            isNeedConvert = false;
-                        }
-                    }
-                    if (isNeedConvert) { 
-                        Process pr = new Process();//声明一个进程类对象
-                        pr.StartInfo.FileName = "\"" + librparam.Path + "\"";
-                        pr.StartInfo.Arguments = " " + librparam.Command + " " + librparam.OutputFileExtension + " " +  "\"" + file.GetRightOriginalName() + "\" " + " --outdir \"" + librparam.OutputDirectory + "\"";
-                        pr.Start();
-                        pr.WaitForExit();
-                        
-                        //DateTime dtConvertStart = System.DateTime.Now;
-                        //// Console.WriteLine("LibreOffice Process is finished");
-                        //while (!System.IO.File.Exists(librparam.OutputDirectory + "\\" + file.outputFileName)) {
-                        //    // Console.WriteLine(librparam.OutputFileExtension + " is not created");
-                        //    Thread.Sleep(100);
-                        //}
-                        //DateTime dtConvertEnd = System.DateTime.Now;
-                        // Console.WriteLine("wait for the pdf file time: " + (dtConvertEnd - dtConvertStart).TotalSeconds.ToString("F0") + "s");
-                    }
-                    
-                    // delete serialNumber file
-                    if (file.IsRename)
-                    {
-                        file.DeleteSerialNumberFile();
-                    }
-                    DateTime dtEnd = System.DateTime.Now;
-                    DeleteLog(3);
-                    Log((dtEnd - dtStart).TotalSeconds.ToString("F0") + "s" + (isNeedConvert? "": "(N)") + "\t\t" + file.originalFile.FullName);
-
-
-                }
-                catch(System.OperationCanceledException ex)
-                {
-                    // Cancel Task
-                    throw ex; 
-                }
-                catch (Exception ex)
-                {
-                    Log("error:" + ex.Message);
-                }
-            }
-            if (librparam.IsincludSubfolder)
-            {
-                foreach (DirectoryInfo dir in originalFold.GetDirectories())
-                {
-                    LibreOfficeParameter libreparamSub = (LibreOfficeParameter)librparam.Clone();
-                    libreparamSub.OriginalDirectory = dir.FullName;
-                    libreparamSub.OutputDirectory += "\\" + dir.Name;
-                    CreateBatchSub(libreparamSub);
-
-                }
-            }
-
-        }
-
-        private PairFile GetPairFile(LibreOfficeParameter librparam, FileInfo file, bool IsRename, byte Index)
-        {
-            PairFile pairFile = new PairFile(file.FullName);
-            // pairFile.originalFile = new FileInfo();
-            pairFile.outputDir = librparam.OutputDirectory;
-            pairFile.outputFileExtension = librparam.OutputFileExtension;
-            pairFile.IsRename = IsRename;
-            pairFile.serialNumber = Index;
-            pairFile.CreateSerialNumberFile();
-            return pairFile;
-        }
-        #endregion Thread function
-        private string GetCommand(LibreOfficeParameter librparam, PairFile file)
-        {
-            string command = "\"";
-            command += librparam.Path + "\" ";
-            command += librparam.Command + " ";
-            command += librparam.OutputFileExtension + " ";
-            command += "\"" + file.GetRightOriginalName() + "\" ";
-            command += " --outdir \""  + librparam.OutputDirectory + "\"";
-            return command;
-        }
-
 
         private LibreOfficeParameter GetLibreOfficeParamter()
         {
@@ -580,9 +370,10 @@ namespace Verktyg
             libreparam.Command = this.txtCommand.Text.Trim();
             libreparam.OriginalDirectory = this.txtOriginalDir.Text.Trim();
             libreparam.OutputDirectory = this.txtOutputDir.Text.Trim();
-            libreparam.OriginalExtesnsion = this.txtOriginalExtension.Text.Trim();
+            libreparam.OriginalExtension = this.txtOriginalExtension.Text.Trim();
             libreparam.OutputFileExtension = this.txtOutputFileExtension.Text.Trim();
             libreparam.Isoverwrite = this.ckboverwrite.Checked;
+            libreparam.BatchFile = this.txtBatchFilePath.Text.Trim();
             FormSetting f = new FormSetting();
             libreparam.AllExtensionOfLibreOfficeSupporting = f.GetAllExtensions();
             return libreparam;
@@ -592,94 +383,7 @@ namespace Verktyg
         {
             return this.txtBatchFilePath.Text.Trim();
         }
-        private bool CheckLibreOfficeParamter(LibreOfficeParameter libreparam)
-        {
-            bool rtn = false;
-            if (!System.IO.File.Exists(libreparam.Path)) {
-                Log("LibeOffice is not exists.");
-                return rtn;
-            }
-            if (!System.IO.Directory.Exists(libreparam.OriginalDirectory)) {
-                Log("OriginalDirectory is not exists.");
-                return rtn;
-            }
-            if (!System.IO.Directory.Exists(libreparam.OutputDirectory)) {
-                Log("OutputDirectory is not exists.");
-                return rtn;
-            }
-            switch (libreparam.OutputFileExtension)
-            {
-                case "pdf":
-                    break;
-                default:
-                    Log("OutputFileExtension[" + libreparam.OutputFileExtension + "] is not supported");
-                    return rtn;
-                    // break;
-            }
-            foreach(var extension in libreparam.OriginalExtesnsion.Split(';')) { 
-                switch (extension)
-                {
-                    #region word
-                    case "docx":
-                        break;
-                    case "doc":
-                        break;
-                    case "docm":
-                        break;
-                    case "dot":
-                        break;
-                    case "dotm":
-                        break;
-                    case "dotx":
-                        break;
-                    #endregion word
-                    #region Excel
-                    case "xlsx":
-                        break;
-                    case "xls":
-                        break;
-                    case "xlsb":
-                        break;
-                    case "xlsm":
-                        break;
-                    case "xltx":
-                        break;
-                    #endregion Excel
-                    #region RichText
-                    case "rtf":
-                        break;
-                    #endregion RichText
-                    #region  PowerPoint
-                    case "potm":
-                        break;
-                    case "potx":
-                        break;
-                    case "pps":
-                        break;
-                    case "ppsm":
-                        break;
-                    case "ppsx":
-                        break;
-                    case "ppt":
-                        break;
-                    case "pptm":
-                        break;
-                    case "pptx":
-                        break;
-                    #endregion PowerPoint
-                    #region  PDF
-                    case "pdf":
-                        break;
-                    #endregion PDF
-                    default:
-                        Log("OriginalExtesnsion[" + extension + "] is not supported");
-                        return rtn;
-                        // break;
-                }
-            }
-            return true;
-            
-        }
+        
 
         #region Button Status controll
         /// <summary>
@@ -714,19 +418,28 @@ namespace Verktyg
         {
             try
             {
-                tokenSource = new CancellationTokenSource();
-                token = tokenSource.Token;
-                SetNameConflictButtonStatus(false);
-                await AnalyzeNameConflict();
+                this.SetNameConflictButtonStatus(false);
+                StartNewTask();
+                NameConflictParameter param = GetNameConflictParameter();
+                NameConflict nameConflictThreading = new NameConflict(this.log, this.tokenSource, param);
+                task = nameConflictThreading.Run();
+                await task;
+                //
+            }
+            catch (System.OperationCanceledException ex)
+            {
+                log.RecordError(ex.Message);
             }
             catch (Exception ex)
             {
-
+                log.RecordError(ex.Message);
+                //this.SetFolderButtonStatus(true);
             }
             finally
             {
-                this.BeginInvoke(new SetbuttonStatus(SetNameConflictButtonStatus), new object[] { true });
+                this.SetNameConflictButtonStatus(true);
             }
+
         }
 
         private void BtnConflict_CancelAnalysis_Click(object sender, EventArgs e)
@@ -746,93 +459,13 @@ namespace Verktyg
         #endregion Buttoon Click
 
         #region Threading Function
-        private Task AnalyzeNameConflict()
-        {
-            LogTaskBegin("Analyis of NameConflict");
-            task = Task.Run(() => AnalyzeNameConflictThread());
-            return task;
-        }
-        private void AnalyzeNameConflictThread()
-        {
-            CheckNumber = 0;
-            NameConflictParameter param = GetNameConflictParameter();
-            if (!NameConflictPathCheck(param)) { return; }
-            Log("FileName\tPath\tConflict Files");
-            AnalyzeNameConflictThreadSub(param);
-            LogTaskEnd("Analyis of NameConflict");
-        }
+       
+        
         private void AnalyzeNameConflictThreadSub(NameConflictParameter param)
         {
             //NameConflictPathCheck(param.OriginalDirectory);
             
-            DirectoryInfo originalFold = new DirectoryInfo(param.OriginalDirectory);
-            Log("Analyzing [" + originalFold.FullName + "]");
-
-            var originalfiles = originalFold.GetFiles().Where(s => {
-                bool rtn = false;
-                var extensionlist = param.OriginalExtension.Split(';');
-                foreach (string item in extensionlist)
-                {
-                    rtn = rtn || s.Name.EndsWith("." + item);
-                }
-
-                return rtn;
-                //s.Name.EndsWith(".exe") || s.Name.EndsWith(".doc") || s.Name.EndsWith(".docx")
-            }
-            );
-            List<NameConflictResult> listNameConflictResult = new List<NameConflictResult>();
-            IEnumerable<FileInfo> ListAllFile = (IEnumerable<FileInfo>)originalfiles.Where<FileInfo>(s => { return true; });
-
-
-            // Check OrigLinal First
-            foreach (FileInfo file in originalfiles)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    // Clean up here, then...
-                    LogTaskCancel("Analyis of NameConflict"); ;
-                    this.BeginInvoke(new SetbuttonStatus(this.SetNameConflictButtonStatus), new object[] { true });
-                    token.ThrowIfCancellationRequested();
-                }
-                // remove self first
-                ListAllFile = (IEnumerable<FileInfo>)ListAllFile.Except(new FileInfo[] { file } );
-                var conflictList = ListAllFile.Where(item => { return Path.GetFileNameWithoutExtension(file.Name) == Path.GetFileNameWithoutExtension(item.Name); });
-                if (conflictList.Count() > 0)
-                {
-                    NameConflictResult conflictresult = new NameConflictResult();
-                    conflictresult.OriginalFileName = file.Name;
-                    conflictresult.Path = param.OriginalDirectory;
-                    conflictresult.ExtensionName = Path.GetExtension(file.Name);
-                    foreach(FileInfo s in conflictList) {
-                        conflictresult.NameConflictFileName += s.Name + " ; ";
-                        // remove conflict file
-                        ListAllFile = (IEnumerable<FileInfo>)ListAllFile.Except(new FileInfo[] { s });
-                    }
-                    listNameConflictResult.Add(conflictresult);
-                }
-                
-                
-            }
-            if (param.IsShowFolder) { 
-                if (listNameConflictResult.Count() == 0)
-                {
-                    // none conflict files under this folder
-                    NameConflictResult conflictresult = new NameConflictResult();
-                    conflictresult.OriginalFileName = "OK";
-                    conflictresult.Path = param.OriginalDirectory;
-                    conflictresult.NameConflictFileName = "none conflicts";
-                    listNameConflictResult.Add(conflictresult);
-                }
-            }
-            DeleteLog(2);
-            LogConflictResult(listNameConflictResult);
-            foreach (DirectoryInfo dir in originalFold.GetDirectories())
-            {
-                NameConflictParameter paramSub = (NameConflictParameter)param.Clone();
-                paramSub.OriginalDirectory = dir.FullName;
-                
-                AnalyzeNameConflictThreadSub(paramSub);
-            }
+            
         }
         private NameConflictParameter GetNameConflictParameter()
         {
@@ -843,27 +476,8 @@ namespace Verktyg
             param.IsShowFolder = this.ckbConflict_showAllFolder.Checked;
             return param;
         }
-        private bool NameConflictPathCheck(NameConflictParameter param)
-        {
-            DirectoryInfo originalFold = new DirectoryInfo(param.OriginalDirectory);
-            if (!originalFold.Exists) { Log("Original Path is not exists."); return false; }
-            return true;
-        }
-        private void LogConflictResult(List<NameConflictResult> list)
-        {
-            foreach(NameConflictResult item in list)
-            {
-                LogConflictResult(item);
-                
-            }
-        }
-        private void LogConflictResult(NameConflictResult result)
-        {
-            if (result.OriginalFileName == "OK")
-                RecordWhitelog(result.OriginalFileName + "\t" + result.Path + "\t" + result.NameConflictFileName, true);
-            else
-                RecordRedlog(result.OriginalFileName + "\t" + result.Path + "\t" + result.NameConflictFileName, true);
-        }
+        
+        
 
         #endregion  Threading Function
 
@@ -879,6 +493,15 @@ namespace Verktyg
 
         #region CheckFile Operation
         #region Button Click
+        private void BtnCheck_SetExtensions_Click(object sender, EventArgs e)
+        {
+            FormSetting f = new FormSetting();
+            f.InitialExtensions(this.txtCheck_OriginalExtension.Text);
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                this.txtCheck_OriginalExtension.Text = f.GetExtensions();
+            }
+        }
         private void BtnCheck_SetOriginalDir_Click(object sender, EventArgs e)
         {
             DialogResult dr = OpenFoldDialog();
@@ -897,20 +520,27 @@ namespace Verktyg
         }
         private async void BtnCheck_Click(object sender, EventArgs e)
         {
-            try {
-                tokenSource = new CancellationTokenSource();
-                token = tokenSource.Token;
-                SetCheckFileButtonStatus(false);
-                await CheckFile();
-            }
-            catch(Exception ex)
+            try
             {
-
+                this.SetCheckFileButtonStatus(false);
+                StartNewTask();
+                CheckFileParameter param = GetCheckFileParameter();
+                CheckFile checkhreading = new CheckFile(this.log, this.tokenSource, param);
+                task = checkhreading.Run();
+                await task;
+                //
+            }
+            catch (Exception ex)
+            {
+                log.RecordError(ex.Message);
+                //this.SetFolderButtonStatus(true);
             }
             finally
             {
-                this.BeginInvoke(new SetbuttonStatus(SetCheckFileButtonStatus), new object[] { true });
+                this.SetCheckFileButtonStatus(true);
             }
+
+            
         }
         private void BtnCheck_Cancel_Click(object sender, EventArgs e)
         {
@@ -922,119 +552,13 @@ namespace Verktyg
         #endregion Button Click
 
         #region Threading Function
-        private Task CheckFile()
-        {
-            LogTaskBegin("Check File");
-            task = Task.Run(() => CheckFileThread());
-            return task;
-        }
-        private void CheckFileThread()
-        {
-            CheckNumber = 0;
-            CheckFileParameter paramCheckFile = GetCheckFileParameter();
-            if (!PathCheck(paramCheckFile)) { return; }
-            Log("number\tValid\tOriginal Size\tSize(Ori) Abbreviation\tOouput Size\tSize(Out) Abbreviation\ttOriginal Extension\tOutput Extension\tOriginal FileName\tOriginal Path\tDestination FileName\tDestination Path");
-            CheckFileThreadSub(paramCheckFile);
-            LogTaskEnd("Check File");
-            
-        }
-        private bool CheckDirectoryIsExists(string path,bool isCreate) {
-            if(System.IO.File.Exists(path)) { return true; }
-            else
-            {
-                if (isCreate)
-                {
-                    System.IO.Directory.CreateDirectory(path);
-                    if (System.IO.File.Exists(path)) { return true; }
-                    else
-                    { return false; }
-                }
-                else
-                { return false; }
-            }
-        }
-        private void CheckFileThreadSub(CheckFileParameter param)
-        {
-            //token.ThrowIfCancellationRequested();
-            CheckDirectoryIsExists(param.OriginalDirectory,true);
-            CheckDirectoryIsExists(param.OutputDirectory,true);
-
-            DirectoryInfo originalFold = new DirectoryInfo(param.OriginalDirectory);
-            DirectoryInfo destinationFold = new DirectoryInfo(param.OutputDirectory);
-            
-
-            var originalfiles = originalFold.GetFiles();
-            var destinationfiles = destinationFold.GetFiles();
-            List<CheckResult> listCheckResult = new List<CheckResult>();
-
-            // Check Original First
-            foreach (FileInfo file in originalfiles)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    // Clean up here, then...
-                    LogTaskCancel("Check File");
-                    this.BeginInvoke(new SetbuttonStatus(SetCheckFileButtonStatus), new object[] { true });
-                    token.ThrowIfCancellationRequested();
-                }
-
-                CheckResult checkresult = new CheckResult();
-                checkresult.OriginalExtension = Path.GetExtension(file.Name);
-                checkresult.OriginalFileSize = file.Length;
-                checkresult.OriginalFileNameWithExtension = Path.GetFileNameWithoutExtension(file.Name);
-                checkresult.OriginalPath = file.Directory.FullName;
-                FileInfo outputFile;
-                try
-                {
-                    outputFile = destinationfiles.First(f => Path.GetFileNameWithoutExtension(f.Name)==Path.GetFileNameWithoutExtension(file.Name));
-                    if (outputFile != null)
-                    {
-                        checkresult.DestinationExtension = Path.GetExtension(outputFile.Name);
-                        checkresult.DestinationFileSize = outputFile.Length;
-                        checkresult.DestinationFileNameWithExtension = Path.GetFileNameWithoutExtension(outputFile.Name);
-                        checkresult.DestinationPath = outputFile.Directory.FullName;
-
-                    }
-                }
-                catch(Exception ex)
-                {
-
-                }
-
-                listCheckResult.Add(checkresult);
-            }
-            //check destination
-            foreach (FileInfo file in destinationfiles)
-            {
-                CheckResult checkresult;
-                try
-                {
-                    checkresult = listCheckResult.First(f =>
-                    {
-                        return (f.DestinationFileNameWithExtension == Path.GetFileNameWithoutExtension(file.Name)) && (f.DestinationExtension == Path.GetExtension(file.Name));
-                    });
-                    if (checkresult == null)
-                    {
-                        // Destination is more than original
-                        listCheckResult.Add(GetDestinationCheckResult(file));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    listCheckResult.Add(GetDestinationCheckResult(file));
-                }
-                
-            }
-            LogCheckResult(listCheckResult);
-            foreach (DirectoryInfo dir in originalFold.GetDirectories())
-            {
-                CheckFileParameter paramSub = (CheckFileParameter)param.Clone();
-                paramSub.OriginalDirectory = dir.FullName;
-                paramSub.OutputDirectory += "\\" + dir.Name;
-                CheckFileThreadSub(paramSub);
-            }
-
-        }
+        //private Task CheckFile()
+        //{
+        //    //log.LogTaskBegin();
+        //    //task = Task.Run(() => CheckFileThread());
+        //    //return task;
+        //}
+        
         #endregion 
         #region Button Status controll
         /// <summary>
@@ -1050,266 +574,32 @@ namespace Verktyg
         }
 
         #endregion
-        private CheckResult GetDestinationCheckResult(FileInfo file)
-        {
-            CheckResult checkresult = new CheckResult();
-            checkresult.DestinationExtension = Path.GetExtension(file.Name);
-            checkresult.DestinationFileSize = file.Length;
-            checkresult.DestinationFileNameWithExtension = Path.GetFileNameWithoutExtension(file.Name);
-            checkresult.DestinationPath = file.Directory.FullName;
-            return checkresult;
-        }
-        private void LogCheckResult(List<CheckResult> list)
-        {
-            foreach(CheckResult result in list)
-            {
-                LogCheckResult(result);
-            }
-        }
-        private void LogCheckResult(CheckResult result)
-        {
-            if (result != null)
-            {
-                //Log((result.isValid ? "OK" : "No") + "\t"  + result.OriginalFileSize.ToString("F2") + "KB" + "\t" + result.DestinationFileSize.ToString("F2") + "KB" + "\t" + result.OriginalExtension  + "\t" + result.DestinationExtension + "\t" + result.OriginalFileNameWithExtension + "\t" + result.DestinationPath);
-                // Mike add Number, Exact Size
-                CheckNumber += 1;
-                RecordWhitelog(CheckNumber.ToString() + "\t");
-                if (result.isValid)
-                {
-                    RecordWhitelog("OK", false);
-                }
-                else
-                {
-                    RecordRedlog("No", false);
-                }
-                RecordWhitelog("\t", false);
-                RecordWhitelog(result.OriginalFileSize.ToString("N0"), false);
-
-                RecordWhitelog("\t", false);
-                RecordWhitelog(GetByteDescription(result.OriginalFileSize), false);
-
-                RecordWhitelog("\t", false);
-                RecordWhitelog(result.DestinationFileSize.ToString("N0"), false);
-
-                RecordWhitelog("\t", false);
-                RecordWhitelog(GetByteDescription(result.DestinationFileSize), false);
-
-                RecordWhitelog("\t", false);
-                if (result.isValid)
-                {
-                    RecordWhitelog(result.OriginalExtension, false);
-                }else
-                {
-                    RecordRedlog(result.OriginalExtension, false);
-                }
-
-                RecordWhitelog("\t", false);
-                if (result.isValid)
-                { RecordWhitelog(result.DestinationExtension, false);  }
-                else
-                { RecordBluelog(result.DestinationExtension, false); }
-
-                RecordWhitelog("\t", false);
-                if (result.isValid)
-                {
-                    RecordWhitelog(result.OriginalFileNameWithExtension, false);
-                }
-                else
-                {
-                    RecordRedlog(result.OriginalFileNameWithExtension, false);
-                }
-
-
-                RecordWhitelog("\t", false);
-                if (result.isValid)
-                { RecordWhitelog(result.OriginalPath, false); }
-                else
-                { RecordRedlog(result.OriginalPath, false); }
-
-                RecordWhitelog("\t", false);
-                if (result.isValid)
-                {
-                    RecordWhitelog(result.DestinationFileNameWithExtension, false);
-                }
-                else
-                {
-                    RecordBluelog(result.DestinationFileNameWithExtension, false);
-                }
-
-
-                RecordWhitelog("\t", false);
-                if (result.isValid)
-                { RecordWhitelog(result.DestinationPath, false); }
-                else
-                { RecordBluelog(result.DestinationPath, false); }
-
-                RecordWhitelog("", true);
-            }
-        }
-        private string GetByteDescription(long length)
-        {
-            string rtn = "";
-            if (length < 1024)
-            {
-                rtn = length.ToString("N0") + "B";
-            }else if (length < 1024 * 1024)
-            {
-                rtn = (length / 1024).ToString("N1") + "KB";
-            }
-            else if (length < 1024 * 1024* 1024)
-            {
-                rtn = (length / (1024*1024)).ToString("N1") + "MB";
-            }
-            else 
-            {
-                rtn = (length / (1024 * 1024 * 1024)).ToString("N1") + "GB";
-            }
-            return rtn;
-        }
+        
+        
+        
         private CheckFileParameter GetCheckFileParameter()
         {
             CheckFileParameter param = new CheckFileParameter();
             param.OriginalDirectory = this.txtCheck_OriginalDir.Text.Trim();
             param.OutputDirectory = this.txtCheck_OutputDir.Text.Trim();
+
+            param.OriginalExtension = this.txtCheck_OriginalExtension.Text.Trim();
+            param.OutputFileExtension = this.txtCheck_OutputFileExtension.Text.Trim();
+            FormSetting f = new FormSetting();
+            param.AllExtensionOfLibreOfficeSupporting = f.GetAllExtensions();
+
+
             return param;
 
         }
-        private bool PathCheck(CheckFileParameter param)
-        {
-            DirectoryInfo originalFold = new DirectoryInfo(param.OriginalDirectory);
-            DirectoryInfo destinationFold = new DirectoryInfo(param.OutputDirectory);
-            if (!originalFold.Exists) { Log("Original Path is not exists."); return false; }
-            if (!destinationFold.Exists) { Log("Destination Path is not exists."); return false; }
-            return true;
-        }
+        
         #endregion CheckFile Operation
 
-        #region Log
-        private void LogTaskBegin(string text)
-        {
-            RecordWhitelog(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm;ss.sss") + "\t Task begin:" + text, true);
-        }
-        private void LogTaskEnd(string text)
-        {
-            RecordGreenlog(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm;ss.sss") + "\t Task finished:" + text, true);
-        }
-        private void LogTaskCancel(string text)
-        {
-            RecordRedlog(System.DateTime.Now.ToString("yyyy-MM-dd HH:mm;ss.sss") + "\t Task Canceled:" + text, true);
-        }
-        private void Log(string text)
-        {
-            RecordWhitelog(text, true);
-        }
-        private void LogContinue()
-        {
-            RecordWhitelog(System.DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss.sss"), false);
-            RecordRedlog(ConstContinueing, false);
-        }
-
-        private void DeleteLog(int line)
-        {
-            if (this.richTextBox1.InvokeRequired)
-            {
-                var d = new SafeCallDelegateDeleteLog(DeleteLog);
-                BeginInvoke(d, new object[] { line });
-            }
-            else
-            {
-                if (line > 0)
-                {
-                    //this.richTextBox1.Doc
-                    int start = this.richTextBox1.Text.LastIndexOf("\n");
-                    int end = this.richTextBox1.TextLength;
-                    int len = end - start;
-                    while ((start >= 0) && (line > 0))
-                    {
-                        //this.richTextBox1.Text = this.richTextBox1.Text.Remove(enter);
-                        this.richTextBox1.Select(start, len);
-                        this.richTextBox1.SelectedText = "";
-                        line -= 1;
-                        start = this.richTextBox1.Text.LastIndexOf("\n");
-                        end = this.richTextBox1.TextLength;
-                        len = end - start;
-                    }
-
-                }
-                Log("");
-            }
-        }
-
-        private void RecordError(string text)
-        {
-            RecordRedlog(text);
-        }
-        private void RecordError(string text, bool medEntertecken)
-        {
-            RecordRedlog(text, medEntertecken);
-        }
-        private void RecordRedlog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.Red, false);
-        }
-        private void RecordRedlog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Red, medEntertecken);
-        }
-        private void RecordBluelog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.Blue, false);
-        }
-        private void RecordBluelog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Blue, medEntertecken);
-        }
-        private void RecordGreenlog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.Green, false);
-        }
-        private void RecordWhitelog(string text)
-        {
-            RecordColorLog(text, System.Drawing.Color.White, false);
-        }
-        private void RecordWhitelog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.White, medEntertecken);
-        }
-        private void RecordGreenlog(string text, bool medEntertecken)
-        {
-            RecordColorLog(text, System.Drawing.Color.Green, medEntertecken);
-        }
-        private void RecordColorLog(string text, System.Drawing.Color color, bool medEntertecken)
-        {
-            if (this.richTextBox1.InvokeRequired)
-            {
-                this.Invoke(new InvokeLogWithColor(RecordColorLog), new object[] { text, color, medEntertecken });
-            }
-            else
-            {
-                int start, len;
-                if (this.richTextBox1.Text == null)
-                {
-                    this.richTextBox1.Text = "";
-                }
-
-                start = this.richTextBox1.TextLength;
-                len = text.Length;
-                this.richTextBox1.AppendText(text);
-                this.richTextBox1.Select(start, len);
-                this.richTextBox1.SelectionColor = color;
-                if (medEntertecken)
-                {
-                    this.richTextBox1.AppendText("\r\n");
-                }
-            }
-        }
+        
 
 
 
-        #endregion
-
-
-        #region Cancel Task
+        #region Task functions
         private void CancelTask()
         {
             if (tokenSource != null)
@@ -1319,6 +609,11 @@ namespace Verktyg
                     tokenSource.Cancel();
                 }
             }
+        }
+        private void StartNewTask()
+        {
+            tokenSource = new CancellationTokenSource();
+            token = tokenSource.Token;
         }
         #endregion 
         private void FormMain_Load(object sender, EventArgs e)

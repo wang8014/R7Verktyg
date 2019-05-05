@@ -46,7 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsistClass.cs" />
+    <Compile Include="Threading\CheckFile.cs" />
+    <Compile Include="Threading\DeleteFile.cs" />
+    <Compile Include="Threading\LibreOfficeConvert.cs" />
+    <Compile Include="Threading\MatchFile.cs" />
+    <Compile Include="Threading\NameConflict.cs" />
+    <Compile Include="Tools\AsistClass.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -59,8 +64,12 @@
     <Compile Include="FormSetting.Designer.cs">
       <DependentUpon>FormSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Log\CustomizedLog.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Threading\CopyFolder.cs" />
+    <Compile Include="Threading\CustomizedThread.cs" />
+    <Compile Include="Tools\CustomizedDelegate.cs" />
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>

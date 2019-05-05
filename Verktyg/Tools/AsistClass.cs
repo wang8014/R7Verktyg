@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Verktyg
+namespace Verktyg.Tools
 {
     /// <summary>
     /// Threading parameter for analysis of nameconflict
@@ -30,13 +30,52 @@ namespace Verktyg
         }
     }
     /// <summary>
+    /// Threading parameter for Copy File
+    /// </summary>
+    public class CopyFileParameter : ICloneable
+    {
+        public string OriginalDirectory { get; set; }
+        public string OutoutDirectoy { get; set; }
+       
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+        public CopyFileParameter()
+        {
+            OriginalDirectory = "";
+            OutoutDirectoy = "";
+            
+        }
+    }
+    /// <summary>
+    /// Threading parameter for Delete File
+    /// </summary>
+    public class DeleteFileParameter : ICloneable
+    {
+        public string OutoutDirectoy { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+        public DeleteFileParameter()
+        {
+            OutoutDirectoy = "";
+
+        }
+    }
+    /// <summary>
     /// Threading parameter for Check file
     /// </summary>
     public class CheckFileParameter : ICloneable
     {
-        public string OriginalDirectory { get; set; }
         public string OriginalExtension { get; set; }
+        public string OutputFileExtension { get; set; }
+        public string OriginalDirectory { get; set; }
         public string OutputDirectory { get; set; }
+        public string AllExtensionOfLibreOfficeSupporting { get; set; }
+
 
 
         public object Clone()
@@ -46,7 +85,10 @@ namespace Verktyg
         public CheckFileParameter()
         {
             OriginalDirectory = "";
+            OriginalDirectory = "";
+            OutputFileExtension = "";
             OutputDirectory = "";
+            AllExtensionOfLibreOfficeSupporting = "";
         }
     }
     /// <summary>
@@ -70,6 +112,8 @@ namespace Verktyg
             return this.MemberwiseClone();
         }
     }
+
+     
     /// <summary>
     /// Log parameter of print Check Files Result
     /// </summary>
@@ -84,13 +128,16 @@ namespace Verktyg
         public string DestinationExtension { get; set; }
         public string OriginalFileNameWithExtension { get; set; }
         public string DestinationFileNameWithExtension { get; set; }
+
+        
         
         public bool isValid
         {
-            get
-            {
-                return OriginalFileNameWithExtension == DestinationFileNameWithExtension ? true : false;
-            }
+            //get
+            //{
+            //    return OriginalFileNameWithExtension == DestinationFileNameWithExtension ? true : false;
+            //}
+            get;set;
         }
         public CheckResult()
         {
@@ -100,25 +147,23 @@ namespace Verktyg
             DestinationExtension = "";
             OriginalFileNameWithExtension = "";
             DestinationFileNameWithExtension = "";
+            isValid = false;
             
         }
     }
     /// <summary>
     /// Threading parameter For converting of officedocuments with LibreOffice
     /// </summary>
-    public class LibreOfficeParameter : ICloneable
+    public class LibreOfficeParameter : CheckFileParameter
     {
         public string Path { get; set; }
         public string Command { get; set; }
-        public string OutputFileExtension { get; set; }
-        public string OriginalDirectory { get; set; }
-        public string OutputDirectory { get; set; }
-        public string OriginalExtesnsion { get; set; }
         public bool IsincludSubfolder { get; set; }
         public bool Isoverwrite { get; set; }
-        public string AllExtensionOfLibreOfficeSupporting { get; set; }
 
-        public object Clone()
+        public string BatchFile { get; set; }
+        
+        public new object Clone()
         {
             return this.MemberwiseClone();
         }
@@ -129,13 +174,11 @@ namespace Verktyg
         {
             Path = "";
             Command = "";
-            OutputFileExtension = "";
-            OriginalDirectory = "";
-            OutputDirectory = "";
-            OriginalExtesnsion = "";
             IsincludSubfolder = false;
             Isoverwrite = false;
-            AllExtensionOfLibreOfficeSupporting = "";
+            BatchFile = "";
+
+
         }
 
     }

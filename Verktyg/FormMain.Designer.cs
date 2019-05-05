@@ -31,6 +31,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.btnCancel_DeleteFile = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.lbDestination = new System.Windows.Forms.Label();
@@ -38,6 +39,7 @@
             this.btnSetOriginal = new System.Windows.Forms.Button();
             this.btnSetDestination = new System.Windows.Forms.Button();
             this.btnDeleteAllFiles = new System.Windows.Forms.Button();
+            this.btnCancel_Copy = new System.Windows.Forms.Button();
             this.btnCopyFolder = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.btnCancelConverting = new System.Windows.Forms.Button();
@@ -72,6 +74,7 @@
             this.txtCheck_OriginalDir = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.ckbConflict_showAllFolder = new System.Windows.Forms.CheckBox();
             this.btnConflict_SetOriginalDir = new System.Windows.Forms.Button();
             this.txtConflict_OriginalDir = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
@@ -85,7 +88,11 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFold = new System.Windows.Forms.FolderBrowserDialog();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
-            this.ckbConflict_showAllFolder = new System.Windows.Forms.CheckBox();
+            this.btnCheck_SetExtensions = new System.Windows.Forms.Button();
+            this.txtCheck_OriginalExtension = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtCheck_OutputFileExtension = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -131,6 +138,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.btnCancel_DeleteFile);
             this.tabPage1.Controls.Add(this.button2);
             this.tabPage1.Controls.Add(this.button1);
             this.tabPage1.Controls.Add(this.lbDestination);
@@ -138,6 +146,7 @@
             this.tabPage1.Controls.Add(this.btnSetOriginal);
             this.tabPage1.Controls.Add(this.btnSetDestination);
             this.tabPage1.Controls.Add(this.btnDeleteAllFiles);
+            this.tabPage1.Controls.Add(this.btnCancel_Copy);
             this.tabPage1.Controls.Add(this.btnCopyFolder);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
@@ -146,6 +155,16 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Folder";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // btnCancel_DeleteFile
+            // 
+            this.btnCancel_DeleteFile.Location = new System.Drawing.Point(126, 103);
+            this.btnCancel_DeleteFile.Name = "btnCancel_DeleteFile";
+            this.btnCancel_DeleteFile.Size = new System.Drawing.Size(104, 23);
+            this.btnCancel_DeleteFile.TabIndex = 17;
+            this.btnCancel_DeleteFile.Text = "Cancel Copy";
+            this.btnCancel_DeleteFile.UseVisualStyleBackColor = true;
+            this.btnCancel_DeleteFile.Click += new System.EventHandler(this.BtnCancel_DeleteFile_Click);
             // 
             // button2
             // 
@@ -172,18 +191,18 @@
             this.lbDestination.AutoSize = true;
             this.lbDestination.Location = new System.Drawing.Point(144, 18);
             this.lbDestination.Name = "lbDestination";
-            this.lbDestination.Size = new System.Drawing.Size(47, 12);
+            this.lbDestination.Size = new System.Drawing.Size(83, 12);
             this.lbDestination.TabIndex = 14;
-            this.lbDestination.Text = "       ";
+            this.lbDestination.Text = "c:\\test ui   ";
             // 
             // lbOriginal
             // 
             this.lbOriginal.AutoSize = true;
-            this.lbOriginal.Location = new System.Drawing.Point(144, 55);
+            this.lbOriginal.Location = new System.Drawing.Point(144, 47);
             this.lbOriginal.Name = "lbOriginal";
-            this.lbOriginal.Size = new System.Drawing.Size(47, 12);
+            this.lbOriginal.Size = new System.Drawing.Size(65, 12);
             this.lbOriginal.TabIndex = 13;
-            this.lbOriginal.Text = "       ";
+            this.lbOriginal.Text = "c:\\test AB";
             // 
             // btnSetOriginal
             // 
@@ -209,11 +228,21 @@
             // 
             this.btnDeleteAllFiles.Location = new System.Drawing.Point(16, 100);
             this.btnDeleteAllFiles.Name = "btnDeleteAllFiles";
-            this.btnDeleteAllFiles.Size = new System.Drawing.Size(104, 23);
+            this.btnDeleteAllFiles.Size = new System.Drawing.Size(104, 26);
             this.btnDeleteAllFiles.TabIndex = 9;
             this.btnDeleteAllFiles.Text = "DeleteAllFiles";
             this.btnDeleteAllFiles.UseVisualStyleBackColor = true;
             this.btnDeleteAllFiles.Click += new System.EventHandler(this.BtnDeleteAllFiles_Click);
+            // 
+            // btnCancel_Copy
+            // 
+            this.btnCancel_Copy.Location = new System.Drawing.Point(126, 70);
+            this.btnCancel_Copy.Name = "btnCancel_Copy";
+            this.btnCancel_Copy.Size = new System.Drawing.Size(104, 23);
+            this.btnCancel_Copy.TabIndex = 10;
+            this.btnCancel_Copy.Text = "Cancel Copy";
+            this.btnCancel_Copy.UseVisualStyleBackColor = true;
+            this.btnCancel_Copy.Click += new System.EventHandler(this.BtnCancel_Copy_Click);
             // 
             // btnCopyFolder
             // 
@@ -458,6 +487,11 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.btnCheck_SetExtensions);
+            this.tabPage3.Controls.Add(this.txtCheck_OriginalExtension);
+            this.tabPage3.Controls.Add(this.label13);
+            this.tabPage3.Controls.Add(this.txtCheck_OutputFileExtension);
+            this.tabPage3.Controls.Add(this.label14);
             this.tabPage3.Controls.Add(this.btnCheck_Cancel);
             this.tabPage3.Controls.Add(this.btnCheck);
             this.tabPage3.Controls.Add(this.btnCheck_SetOutput);
@@ -475,7 +509,7 @@
             // 
             // btnCheck_Cancel
             // 
-            this.btnCheck_Cancel.Location = new System.Drawing.Point(691, 125);
+            this.btnCheck_Cancel.Location = new System.Drawing.Point(564, 127);
             this.btnCheck_Cancel.Name = "btnCheck_Cancel";
             this.btnCheck_Cancel.Size = new System.Drawing.Size(121, 48);
             this.btnCheck_Cancel.TabIndex = 22;
@@ -485,7 +519,7 @@
             // 
             // btnCheck
             // 
-            this.btnCheck.Location = new System.Drawing.Point(691, 71);
+            this.btnCheck.Location = new System.Drawing.Point(691, 127);
             this.btnCheck.Name = "btnCheck";
             this.btnCheck.Size = new System.Drawing.Size(121, 48);
             this.btnCheck.TabIndex = 21;
@@ -567,6 +601,16 @@
             this.tabPage4.Text = "name conflict";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
+            // ckbConflict_showAllFolder
+            // 
+            this.ckbConflict_showAllFolder.AutoSize = true;
+            this.ckbConflict_showAllFolder.Location = new System.Drawing.Point(13, 95);
+            this.ckbConflict_showAllFolder.Name = "ckbConflict_showAllFolder";
+            this.ckbConflict_showAllFolder.Size = new System.Drawing.Size(234, 16);
+            this.ckbConflict_showAllFolder.TabIndex = 29;
+            this.ckbConflict_showAllFolder.Text = "Show information of all the folders";
+            this.ckbConflict_showAllFolder.UseVisualStyleBackColor = true;
+            // 
             // btnConflict_SetOriginalDir
             // 
             this.btnConflict_SetOriginalDir.Location = new System.Drawing.Point(696, 14);
@@ -630,7 +674,8 @@
             this.txtConflict_OriginalFileExtension.Name = "txtConflict_OriginalFileExtension";
             this.txtConflict_OriginalFileExtension.Size = new System.Drawing.Size(547, 21);
             this.txtConflict_OriginalFileExtension.TabIndex = 23;
-            this.txtConflict_OriginalFileExtension.Text = "docx";
+            this.txtConflict_OriginalFileExtension.Text = "doc;docm;docx;dot;dotm;dotx;xls;xlsb;xlsm;xlsx;xltx;potm;potx;pps;ppsm;ppsx;ppt;p" +
+    "ptm;pptx;pdf;rtf";
             // 
             // label10
             // 
@@ -673,15 +718,50 @@
             // 
             this.openFile.FileName = "soffice";
             // 
-            // ckbConflict_showAllFolder
+            // btnCheck_SetExtensions
             // 
-            this.ckbConflict_showAllFolder.AutoSize = true;
-            this.ckbConflict_showAllFolder.Location = new System.Drawing.Point(13, 95);
-            this.ckbConflict_showAllFolder.Name = "ckbConflict_showAllFolder";
-            this.ckbConflict_showAllFolder.Size = new System.Drawing.Size(234, 16);
-            this.ckbConflict_showAllFolder.TabIndex = 29;
-            this.ckbConflict_showAllFolder.Text = "Show information of all the folders";
-            this.ckbConflict_showAllFolder.UseVisualStyleBackColor = true;
+            this.btnCheck_SetExtensions.Location = new System.Drawing.Point(691, 98);
+            this.btnCheck_SetExtensions.Name = "btnCheck_SetExtensions";
+            this.btnCheck_SetExtensions.Size = new System.Drawing.Size(121, 23);
+            this.btnCheck_SetExtensions.TabIndex = 27;
+            this.btnCheck_SetExtensions.Text = "Set Extensions";
+            this.btnCheck_SetExtensions.UseVisualStyleBackColor = true;
+            this.btnCheck_SetExtensions.Click += new System.EventHandler(this.BtnCheck_SetExtensions_Click);
+            // 
+            // txtCheck_OriginalExtension
+            // 
+            this.txtCheck_OriginalExtension.Location = new System.Drawing.Point(137, 95);
+            this.txtCheck_OriginalExtension.Name = "txtCheck_OriginalExtension";
+            this.txtCheck_OriginalExtension.Size = new System.Drawing.Size(517, 21);
+            this.txtCheck_OriginalExtension.TabIndex = 26;
+            this.txtCheck_OriginalExtension.Text = "doc;docm;docx;dot;dotm;dotx;xls;xlsb;xlsm;xlsx;xltx;potm;potx;pps;ppsm;ppsx;ppt;p" +
+    "ptm;pptx;pdf;rtf";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(5, 98);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(131, 12);
+            this.label13.TabIndex = 25;
+            this.label13.Text = "OriginalFileExtension";
+            // 
+            // txtCheck_OutputFileExtension
+            // 
+            this.txtCheck_OutputFileExtension.Location = new System.Drawing.Point(137, 68);
+            this.txtCheck_OutputFileExtension.Name = "txtCheck_OutputFileExtension";
+            this.txtCheck_OutputFileExtension.Size = new System.Drawing.Size(517, 21);
+            this.txtCheck_OutputFileExtension.TabIndex = 24;
+            this.txtCheck_OutputFileExtension.Text = "pdf";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(5, 71);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(119, 12);
+            this.label14.TabIndex = 23;
+            this.label14.Text = "OutputFileExtension";
             // 
             // FormMain
             // 
@@ -769,6 +849,13 @@
         private System.Windows.Forms.TextBox txtConflict_OriginalDir;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.CheckBox ckbConflict_showAllFolder;
+        private System.Windows.Forms.Button btnCancel_Copy;
+        private System.Windows.Forms.Button btnCancel_DeleteFile;
+        private System.Windows.Forms.Button btnCheck_SetExtensions;
+        private System.Windows.Forms.TextBox txtCheck_OriginalExtension;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txtCheck_OutputFileExtension;
+        private System.Windows.Forms.Label label14;
     }
 }
 
