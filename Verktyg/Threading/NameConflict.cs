@@ -35,7 +35,7 @@ namespace Verktyg.Threading
                 var extensionlist = ((NameConflictParameter)_threadParameter).OriginalExtension.Split(';');
                 foreach (string item in extensionlist)
                 {
-                    rtn = rtn || s.Name.EndsWith("." + item);
+                    rtn = rtn || s.Name.ToLower().EndsWith("." + item.ToLower());
                 }
 
                 return rtn;

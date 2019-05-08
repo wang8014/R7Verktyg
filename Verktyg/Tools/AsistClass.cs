@@ -161,6 +161,7 @@ namespace Verktyg.Tools
         public bool IsincludSubfolder { get; set; }
         public bool Isoverwrite { get; set; }
 
+        public bool IsOnlyLogNeedtoConvert { get; set; }
         public string BatchFile { get; set; }
         
         public new object Clone()
@@ -312,11 +313,11 @@ namespace Verktyg.Tools
                 return;
             }
             //delete the wrong name's outputfile
-            if (System.IO.File.Exists(GetDefaultOutputFileName()))
+            if (System.IO.File.Exists(outputDir + "\\" + GetDefaultOutputFileName()))
             {
                 // Delete this file because this converting file is renamed.
                 // Delete the wrong name file and convert again to ensure the converting file is newest.
-                System.IO.File.Delete(GetDefaultOutputFileName());
+                System.IO.File.Delete(outputDir + "\\" + GetDefaultOutputFileName());
             }
             if (!System.IO.Directory.Exists(outputDir + "\\" + PreName))
             {

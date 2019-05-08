@@ -29,7 +29,7 @@ namespace Verktyg.Threading
                 var extensionlist = param.OriginalExtension.Split(';');
                 foreach (string item in extensionlist)
                 {
-                    rtn = rtn || s.Name.EndsWith("." + item);
+                    rtn = rtn || s.Name.ToLower().EndsWith("." + item.ToLower());
                 }
 
                 return rtn;
@@ -40,7 +40,7 @@ namespace Verktyg.Threading
                 var extensionlist = param.AllExtensionOfLibreOfficeSupporting.Split(';');
                 foreach (string item in extensionlist)
                 {
-                    rtn = rtn || s.Name.EndsWith("." + item);
+                    rtn = rtn || s.Name.ToLower().EndsWith("." + item.ToLower());
                 }
 
                 return rtn;

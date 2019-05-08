@@ -47,7 +47,7 @@ namespace Verktyg
 
         #region Test
 
-        private void Button2_Click(object sender, EventArgs e)
+        private async void Button2_Click(object sender, EventArgs e)
         {
             //tokenSource = new CancellationTokenSource();
             //token = tokenSource.Token;
@@ -65,73 +65,30 @@ namespace Verktyg
             //FileInfo oneFile = new FileInfo(@"c:\test AB\intervju.docx");
             //FileInfo twoFile = oneFile.;
             //Get original files list
-            DirectoryInfo originalFold = new DirectoryInfo(@"c:\test AB");
-            var originalFileList = originalFold.GetFiles().Where(s =>
+            try
             {
-                bool rtn = false;
-                var extensionlist = "docx;xlsx;pdf;pptx".Split(';');
-                foreach (string item in extensionlist)
-                {
-                    rtn = rtn || s.Name.EndsWith("." + item);
-                }
-
-                return rtn;
-            });
-            foreach (FileInfo item in originalFileList)
-            {
-                log.Log(item.Name + "\t" + item.Length.ToString());
+                //this.SetFolderButtonStatus(false);
+                StartNewTask();
+                CheckFileParameter param = new CheckFileParameter();
+                param.OutputDirectory = this.lbDestination.Text.Trim();
+                param.OriginalDirectory = this.lbOriginal.Text.Trim();
+                param.OutputFileExtension = "pdf";
+                param.OriginalExtension = "pdf";
+                param.AllExtensionOfLibreOfficeSupporting = "pdf";
+                SameFile Threading = new SameFile(this.log, this.tokenSource, param);
+                Task task = Threading.Run();
+                await task;
+                //
             }
-            log.LogContinue();
-            //Get LibreOffice support list
-            var LibreOfficeSupportFileList = originalFold.GetFiles().Where(s =>
+            catch (Exception ex)
             {
-                bool rtn = false;
-                var extensionlist = "docx;xlsx;pdf;pptx".Split(';');
-                foreach (string item in extensionlist)
-                {
-                    rtn = rtn || s.Name.EndsWith("." + item);
-                }
-
-                return rtn;
-            });
-            
-            IEnumerable<FileInfo> result = LibreOfficeSupportFileList.Where(s =>
-            {
-                return Path.GetFileNameWithoutExtension("vaccine_Jessica") == Path.GetFileNameWithoutExtension(s.Name);
-            });
-            ////Create converting File List
-            ////foreach (FileInfo file in originalFileList)
-            ////{
-            log.Log("Except vaccine_Jessica");
-            originalFileList = originalFileList.Except(result);
-            foreach (FileInfo item in originalFileList)
-            {
-                log.Log(item.Name + "\t" + item.Length.ToString());
-                
+                log.RecordError(ex.Message);
+                //this.SetFolderButtonStatus(true);
             }
-            log.LogContinue();
-
-            originalFileList = originalFold.GetFiles().Where(s =>
+            finally
             {
-                bool rtn = false;
-                var extensionlist = "docx;xlsx;pdf;pptx".Split(';');
-                foreach (string item in extensionlist)
-                {
-                    rtn = rtn || s.Name.EndsWith("." + item);
-                }
-
-                return rtn;
-            });
-            log.Log("Except FileInfoComparer");
-            originalFileList = originalFileList.Except(result, new FileInfoComparer());
-
-            while(originalFileList.Count()>0)  // (FileInfo item in originalFileList)
-            {
-                FileInfo file = originalFileList.First();
-                log.Log(file.Name + "\t" + file.Length.ToString());
-                originalFileList = originalFileList.Except(new FileInfo[] { file }, new FileInfoComparer());
+                //this.SetFolderButtonStatus(true);
             }
-
 
         }
 
@@ -374,6 +331,7 @@ namespace Verktyg
             libreparam.OutputFileExtension = this.txtOutputFileExtension.Text.Trim();
             libreparam.Isoverwrite = this.ckboverwrite.Checked;
             libreparam.BatchFile = this.txtBatchFilePath.Text.Trim();
+            libreparam.IsOnlyLogNeedtoConvert = this.ckbLibreConvert_OnlyShowLogNeedtoConvert.Checked;
             FormSetting f = new FormSetting();
             libreparam.AllExtensionOfLibreOfficeSupporting = f.GetAllExtensions();
             return libreparam;

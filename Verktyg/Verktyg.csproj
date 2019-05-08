@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Threading\SameFile.cs" />
     <Compile Include="Threading\CheckFile.cs" />
     <Compile Include="Threading\DeleteFile.cs" />
     <Compile Include="Threading\LibreOfficeConvert.cs" />

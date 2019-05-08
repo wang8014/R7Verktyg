@@ -65,6 +65,11 @@
             this.txtLibrePath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.btnCheck_SetExtensions = new System.Windows.Forms.Button();
+            this.txtCheck_OriginalExtension = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.txtCheck_OutputFileExtension = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
             this.btnCheck_Cancel = new System.Windows.Forms.Button();
             this.btnCheck = new System.Windows.Forms.Button();
             this.btnCheck_SetOutput = new System.Windows.Forms.Button();
@@ -88,11 +93,7 @@
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFold = new System.Windows.Forms.FolderBrowserDialog();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
-            this.btnCheck_SetExtensions = new System.Windows.Forms.Button();
-            this.txtCheck_OriginalExtension = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.txtCheck_OutputFileExtension = new System.Windows.Forms.TextBox();
-            this.label14 = new System.Windows.Forms.Label();
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -184,6 +185,7 @@
             this.button1.TabIndex = 15;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
             this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // lbDestination
@@ -256,6 +258,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.ckbLibreConvert_OnlyShowLogNeedtoConvert);
             this.tabPage2.Controls.Add(this.btnCancelConverting);
             this.tabPage2.Controls.Add(this.ckboverwrite);
             this.tabPage2.Controls.Add(this.btnSetExtensions);
@@ -283,7 +286,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(844, 251);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Convert";
+            this.tabPage2.Text = "LibreOffice Convert";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // btnCancelConverting
@@ -504,8 +507,53 @@
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(844, 251);
             this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Check";
+            this.tabPage3.Text = "Check File";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // btnCheck_SetExtensions
+            // 
+            this.btnCheck_SetExtensions.Location = new System.Drawing.Point(691, 98);
+            this.btnCheck_SetExtensions.Name = "btnCheck_SetExtensions";
+            this.btnCheck_SetExtensions.Size = new System.Drawing.Size(121, 23);
+            this.btnCheck_SetExtensions.TabIndex = 27;
+            this.btnCheck_SetExtensions.Text = "Set Extensions";
+            this.btnCheck_SetExtensions.UseVisualStyleBackColor = true;
+            this.btnCheck_SetExtensions.Click += new System.EventHandler(this.BtnCheck_SetExtensions_Click);
+            // 
+            // txtCheck_OriginalExtension
+            // 
+            this.txtCheck_OriginalExtension.Location = new System.Drawing.Point(137, 95);
+            this.txtCheck_OriginalExtension.Name = "txtCheck_OriginalExtension";
+            this.txtCheck_OriginalExtension.Size = new System.Drawing.Size(517, 21);
+            this.txtCheck_OriginalExtension.TabIndex = 26;
+            this.txtCheck_OriginalExtension.Text = "doc;docm;docx;dot;dotm;dotx;xls;xlsb;xlsm;xlsx;xltx;potm;potx;pps;ppsm;ppsx;ppt;p" +
+    "ptm;pptx;pdf;rtf";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(5, 98);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(131, 12);
+            this.label13.TabIndex = 25;
+            this.label13.Text = "OriginalFileExtension";
+            // 
+            // txtCheck_OutputFileExtension
+            // 
+            this.txtCheck_OutputFileExtension.Location = new System.Drawing.Point(137, 68);
+            this.txtCheck_OutputFileExtension.Name = "txtCheck_OutputFileExtension";
+            this.txtCheck_OutputFileExtension.Size = new System.Drawing.Size(517, 21);
+            this.txtCheck_OutputFileExtension.TabIndex = 24;
+            this.txtCheck_OutputFileExtension.Text = "pdf";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(5, 71);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(119, 12);
+            this.label14.TabIndex = 23;
+            this.label14.Text = "OutputFileExtension";
             // 
             // btnCheck_Cancel
             // 
@@ -598,7 +646,7 @@
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(844, 251);
             this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "name conflict";
+            this.tabPage4.Text = "Name Conflict";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // ckbConflict_showAllFolder
@@ -718,50 +766,17 @@
             // 
             this.openFile.FileName = "soffice";
             // 
-            // btnCheck_SetExtensions
+            // ckbLibreConvert_OnlyShowLogNeedtoConvert
             // 
-            this.btnCheck_SetExtensions.Location = new System.Drawing.Point(691, 98);
-            this.btnCheck_SetExtensions.Name = "btnCheck_SetExtensions";
-            this.btnCheck_SetExtensions.Size = new System.Drawing.Size(121, 23);
-            this.btnCheck_SetExtensions.TabIndex = 27;
-            this.btnCheck_SetExtensions.Text = "Set Extensions";
-            this.btnCheck_SetExtensions.UseVisualStyleBackColor = true;
-            this.btnCheck_SetExtensions.Click += new System.EventHandler(this.BtnCheck_SetExtensions_Click);
-            // 
-            // txtCheck_OriginalExtension
-            // 
-            this.txtCheck_OriginalExtension.Location = new System.Drawing.Point(137, 95);
-            this.txtCheck_OriginalExtension.Name = "txtCheck_OriginalExtension";
-            this.txtCheck_OriginalExtension.Size = new System.Drawing.Size(517, 21);
-            this.txtCheck_OriginalExtension.TabIndex = 26;
-            this.txtCheck_OriginalExtension.Text = "doc;docm;docx;dot;dotm;dotx;xls;xlsb;xlsm;xlsx;xltx;potm;potx;pps;ppsm;ppsx;ppt;p" +
-    "ptm;pptx;pdf;rtf";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(5, 98);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(131, 12);
-            this.label13.TabIndex = 25;
-            this.label13.Text = "OriginalFileExtension";
-            // 
-            // txtCheck_OutputFileExtension
-            // 
-            this.txtCheck_OutputFileExtension.Location = new System.Drawing.Point(137, 68);
-            this.txtCheck_OutputFileExtension.Name = "txtCheck_OutputFileExtension";
-            this.txtCheck_OutputFileExtension.Size = new System.Drawing.Size(517, 21);
-            this.txtCheck_OutputFileExtension.TabIndex = 24;
-            this.txtCheck_OutputFileExtension.Text = "pdf";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(5, 71);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(119, 12);
-            this.label14.TabIndex = 23;
-            this.label14.Text = "OutputFileExtension";
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.AutoSize = true;
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.Checked = true;
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.Location = new System.Drawing.Point(13, 220);
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.Name = "ckbLibreConvert_OnlyShowLogNeedtoConvert";
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.Size = new System.Drawing.Size(336, 16);
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.TabIndex = 22;
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.Text = "Only Show the log of converting that need to Convert";
+            this.ckbLibreConvert_OnlyShowLogNeedtoConvert.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
@@ -856,6 +871,7 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox txtCheck_OutputFileExtension;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.CheckBox ckbLibreConvert_OnlyShowLogNeedtoConvert;
     }
 }
 

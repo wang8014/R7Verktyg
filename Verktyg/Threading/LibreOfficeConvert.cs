@@ -53,10 +53,33 @@ namespace Verktyg.Threading
                     string temp = GetCommand(librparam, file);
                     commandList.Add(temp);
                     DateTime dtStart = System.DateTime.Now;
-                    log.Log("Convert file [" + file.originalFile.FullName + "][" + CustomizedLog.GetByteDescription(file.originalFile.Length) + "]");
-                    log.LogContinue();
+                    bool isNeedConvert = true;
+                    bool Printlog = false;
 
-
+                    if (!librparam.Isoverwrite)
+                    {
+                        if (System.IO.File.Exists(librparam.OutputDirectory + "\\" + file.outputFileName))
+                        {
+                            isNeedConvert = false;
+                        }
+                    }
+                    
+                    if (librparam.IsOnlyLogNeedtoConvert) {
+                        if (isNeedConvert)
+                        {
+                            Printlog = true;
+                            
+                        }
+                    }
+                    else
+                    {
+                        // always print log
+                        Printlog = true;
+                    }
+                    if (Printlog) { 
+                        log.Log("Convert file [" + file.originalFile.FullName + "][" + CustomizedLog.GetByteDescription(file.originalFile.Length) + "]");
+                        log.LogContinue();
+                    }
                     //if (token.IsCancellationRequested)
                     //{
                     //    // Clean up here, then...
@@ -70,14 +93,7 @@ namespace Verktyg.Threading
                         file.CreateSerialNumberFile();
                     }
 
-                    bool isNeedConvert = true;
-                    if (!librparam.Isoverwrite)
-                    {
-                        if (System.IO.File.Exists(librparam.OutputDirectory + "\\" + file.outputFileName))
-                        {
-                            isNeedConvert = false;
-                        }
-                    }
+                    
                     if (isNeedConvert)
                     {
                         Process pr = new Process();//声明一个进程类对象
@@ -102,9 +118,16 @@ namespace Verktyg.Threading
                         file.DeleteSerialNumberFile();
                     }
                     DateTime dtEnd = System.DateTime.Now;
-                    log.DeleteLog(3);
-                    log.Log((dtEnd - dtStart).TotalSeconds.ToString("F0") + "s" + (isNeedConvert ? "" : "(N)") + "\t\t" + file.originalFile.FullName);
 
+                    if (Printlog)
+                    {
+                        log.DeleteLog(3);
+                        log.Log((dtEnd - dtStart).TotalSeconds.ToString("F0") + "s" + (isNeedConvert ? "" : "(N)") + "\t\t" + file.originalFile.FullName);
+                    }
+                    
+                   
+
+                    
 
                 }
                 catch (System.OperationCanceledException ex)

@@ -11,10 +11,10 @@ using System.IO;
 
 namespace Verktyg.Threading
 {
-    public class CheckFile: CustomizedThread
+    public class SameFile: CustomizedThread
     {
         int CheckNumber = 0;
-        public CheckFile(CustomizedLog _log, CancellationTokenSource _tokenSource, ICloneable _threadParameter) : base(_log, _tokenSource, _threadParameter)
+        public SameFile(CustomizedLog _log, CancellationTokenSource _tokenSource, ICloneable _threadParameter) : base(_log, _tokenSource, _threadParameter)
         {
             CheckNumber = 0;
         }
@@ -66,36 +66,13 @@ namespace Verktyg.Threading
             {
                 this.JudgeTaskCancelFlag();
                 CheckResult checkresult = this.AnalyzeandReturnCheckResult(file,convertingFileList,destinationfiles);
+                if ((checkresult.OriginalFileNameWithExtension==checkresult.DestinationFileNameWithExtension) 
+                    && (checkresult.OriginalExtension == checkresult.DestinationExtension)
+                    && ( checkresult.OriginalFileSize == checkresult.DestinationFileSize))
                 listCheckResult.Add(checkresult);
             }
             //check destination
-            foreach (FileInfo file in destinationfiles)
-            {
-                this.JudgeTaskCancelFlag();
-                CheckResult checkresult ;
-                try
-                {
-                    checkresult = listCheckResult.First(f =>
-                    {
-                        return (f.DestinationFileNameWithExtension == Path.GetFileNameWithoutExtension(file.Name)) && (f.DestinationExtension == Path.GetExtension(file.Name));
-                    });
-                    if (checkresult == null)
-                    {
-                        // Destination is more than original
-                        listCheckResult.Add(GetDestinationCheckResult(file));
-                    }
-                }
-                catch (InvalidOperationException ex)
-                {
-                    // no equal item
-                    listCheckResult.Add(GetDestinationCheckResult(file));
-                }
-                catch (Exception ex)
-                {
-                    
-                }
-
-            }
+            
             LogCheckResult(listCheckResult);
             foreach (DirectoryInfo dir in originalFold.GetDirectories())
             {
